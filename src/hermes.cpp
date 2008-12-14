@@ -154,7 +154,7 @@ main
     if(cfg.getChroot()!="")
     {
       //this is needed to get hermes to load the dns resolver BEFORE chrooting
-      (void)gethostbyname("iteisa.com");
+      (void)gethostbyname("hermes-project.com");
       chdir(cfg.getChroot().c_str());
       if(-1==chroot(cfg.getChroot().c_str()))
       {
@@ -290,7 +290,7 @@ void *cleaner_thread_run(void *)
             string server_response;
 
             s.init();
-            s.connect("hermes-stats.iteisa.com",11125);
+            s.connect("stats.hermes-project.com",11125);
             #ifdef HAVE_SSL
             if(cfg.getSubmitStatsSsl())
             {
