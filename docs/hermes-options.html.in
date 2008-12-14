@@ -1,0 +1,8 @@
+<div class="hermesoption">
+  <a name="%name%"><h3>%name%</h3></a>
+  <div class="type">Type: %type%</div>
+  <div class="default">Default value: %default%</div>
+  <div class="explanation">
+    %explanation%
+  </div>
+</div>

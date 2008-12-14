@@ -1,0 +1,7 @@
+Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+  Main coder
+
+Veit Wahlich <cru@zodia.de>
+  .spec file rewrite
+  patch for rejection if peer's ip doesn't resolve to a hostname
+  patch for stats transmission exactly every 60 minutes

@@ -1,0 +1,335 @@
+ChangeLog
+---------
+
+2007-07-20 20:03 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* 1.6 release
+
+* Bugs:
+
+* Fixed a DoS-causing, remotely explitable bug in Proxy.cpp. This bug only affects version 1.3 to
+1.5, both inclusive. If you are using either 1.3, 1.4 or 1.5 UPDATE NOW.
+Thanks to Veit Wahlich for finding and reporting the bug and for submitting
+a preeliminar patch.
+
+* While looking for similar vulnerabilities in the code, found a small
+incorrection, although it doesn't have security implications.
+
+
+2007-07-19 12:57 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* 1.5 release
+
+* Enhancements:
+
+* Allow permanently rejecting mails with dnsbl or spf errors. To use configure
+return_temp_error_on_reject as false (default). To keep the old behaviour,
+configure the above option as true.
+
+* File logger can now be configured to only open the file sporadically to
+write its buffer. This allows for external log rotators on platforms that
+can't rename an open file (i.e. windows). The option is called
+keep_file_locked. To use the new behaviour, configure as false, to keep the
+old one configure as true.
+
+* Implemented win32 service support. To enable, configure with
+--enable-win32-service. The windows build on the website are already compiled
+with this option. To install the service execute:
+
+c:\hermes> hermes -install
+
+To uninstall:
+
+c:\hermes> hermes -uninstall
+
+To start:
+
+c:\hermes> net start hermes
+
+To stop:
+
+c:\hermes> net stop hermes
+
+Of course, you can also use the service manager to start and stop the service.
+Using the service code there's a big warning everyone should read:
+
+The config file MUST be named "hermes.ini" and be located on the same
+directory as "hermes.exe". Also, since hermes is started from another
+directory, you have to specify the full path to the database:
+
+database_file = "c:\hermes\greydatabase.db"
+
+
+
+* Fixes:
+
+* Fix SPF requests to be synchronized. I haven't seen a single failure from
+this, but this is the right way.
+
+* Removed an stale debug statement. It could be noticed when starting hermes
+that the list of dns white/black lists was printed on the standard output.
+
+* dns_{white,black}list_percentage now defaults to 100. Setting it to 0 makes
+no sense and makes all your emails to be considered white/black listed.
+
+* Fixed spec file to include the AUTHORS file.
+
+* The value of spf_query now defaults to true when compiled with SPF support.
+
+* Applied patch by Veit Wahlich that fixes stats submission to be each 60
+minutes exactly. Previously it would send the stats on intervals of
+approximattely 60 minutes.
+
+* Whitelisting IPs is now partial like blacklisting. For example, whitelisting
+192.168.0 will whitelist 192.168.0.* (192.168.0.0/24)
+
+* Small fixes to the building system.
+
+
+2007-06-14 20:23 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* 1.4 release
+
+* Enhancements:
+
+* SPF: if you enable query_spf, everytime someone gets through greylisting,
+they will be checked for spf compliance. If they either FAIL or SOFTFAIL, they
+will be rejected.
+
+* Specify your hostname on the config file (option hostname). If it's empty,
+it gets filled by gethostname() (as before)
+
+* DNS Whitelisting: similar to DNS Blacklisting, but the other way around.
+
+* DNS Whitelisting and DNS Blacklisting both support querying more than one
+server at a time. It means that you don't have to rely 100% on a dns list, but
+can use more than one. To control how many of the list need to list a server,
+use dns_{black,white}list_percentage option on config file.
+
+* If you define now whitelisted_disables_everything, whitelisted host will not
+be forced to go through throttling and banner delaying (or anything else).
+
+* Blacklisting is now partial. That means that if you blacklist 192.168.0. you
+are actually blacklisting 192.168.0.* (192.168.0.0/24 if you prefer)
+
+* Added the	throttling_time option that controls how much we sleep between
+lines when throttling a connection.
+
+* Changed logging format. Should be clearer now, although there are still some
+things I'd like to change.
+
+* We are also logging now also when someone gets their connection dropped
+because of throttling or data-before-banner (or black/whitelisting, spf, etc. ).
+It should help to get a better feeling of how much spam we are stopping with 
+these techniques.
+
+* We now can reject emails if peer doesn't have an inverse resolution (patch
+by Veit Wahlich) or if the inverse resolution doesn't match the helo string.
+Both of these features should be used with extreme care, and are disabled by
+default. You shouldn't use them if you don't know what you are doing.
+
+
+* Fixes:
+
+* FileLogger.cpp: file logging now flushes its buffer after a few lines (15).
+This should update the log on file more often.
+
+* Configfile.tmpl: when compiling on windows, all default values should be
+valid
+
+* Fixed a bug when closing the filelogger file (most people noticed that
+hermes crashed when closing when using file logger).
+
+* Changed the X-Anti-Spam-Proxy header to be more clear.
+
+* Fixed all typos with wether to whether
+
+* Fixed a minor RFC-strict error when defining the non-existing extension
+
+* Timezone _should_ be correct now on windows. If it isn't, write to the
+mailing list with an example and why you think it's incorrect.
+
+* Fixed configure.in. If you specify now --disable-openssl it will disable
+openssl even if you have it installed
+
+* Updated the .spec file (thanks again to Veit Wahlich's patch)
+
+* Added AUTHORS file and also added lot's of docs to the windows release.
+
+2007-05-18 20:11 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* 1.3 release
+
+* added the add_headers option, will add the rfc-required "Received" headers
+should give a better idea of where emails are coming/going
+
+* also added date to logging when it is done to a file
+
+* fixed filelogger, should now use file_logger_file config option
+
+* windows version can now resolve addresses, so rbl works and also you can now
+use fancy names like "localhost" instead of ugly ips like "127.0.0.1"
+
+* updated rpm, hopefully everything should be ok now
+
+2007-05-13 18:21 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* 1.2 release
+
+* added rbl checking. Simply define rbl_domain in configfile
+
+2007-04-20 12:04 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Added an option to configure the initial delay of the SMTP banner
+
+2007-04-19 20:28 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Bugfix 1.1 release
+
+* Implemented the bind_to config option. Defining bind_to in the configfile
+will force hermes to only bind to one ip.
+
+* Fixed a small bug when closing hermes with clean_db=false (it would segfault
+previously)
+
+* Added more documentation and updated http://www.hermes-project.com
+
+2007-04-16 19:48 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Initial 1.0 release
+
+2007-04-09 20:27 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* *.{h,cpp}: add GPL license to all source files. also added gpl.txt with the
+full license text on /docs
+
+* Makefile.am: configure automake more correctly (not a lot, probably still
+very wrong)
+
+* TODO: cleaned up a bit
+
+2007-04-09 18:57 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* *.{h,cpp}: Ifdef'd all output to terminal. From now on if you want all that
+output, define REALLY_VERBOSE_DEBUG on config.h (once it is generated)
+
+* generate_config.pl: generate also a default config file from the information
+on Configfile.tmpl
+
+2007-03-18 19:16 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* *Logger.{h,cpp}: Implement logging as a base class with different subclasses
+depending on a configure option. Also added option to Configfile.tmpl to
+configure the filename for FileLogger.
+This change will allow us to port hermes more easily to other platforms,
+specially non-unix(i.e. win32), but also will help if we don't have a logger
+installed or if it's not compatible with the common interface (I'm using
+metalog, btw).
+
+2007-03-18 17:06 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* *: change all instances of spit to hermes to reflect project's new name
+
+2007-03-09 18:19 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Database.*: modified cleanDB, now the method counts the number of spams we
+have blocked since the last time we cleaned
+
+* spit.cpp: if we have configured it, send the number of spams blocked to a
+server to keep the statistics
+
+* Configfile.tmpl: added options to configure the previous changes.
+submit_stats (bool) submit_stats_username (string) and submit_stats_password
+(string)
+
+2007-02-14 18:20 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* *.*: change all calls to Exception constructor to send also the file name and line
+number
+
+2007-02-12 19:03 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Socket.*: new option setTimeout, sets the timeout for receive/send operations, should
+help with the sockets getting blocked on recv() or send()
+
+* Exception.*: new constructor accepts a filename and line number. The idea is to migrate
+all calls to Exception to this new constructor so that errors get printed with their source
+filename and line number to make debugging easier.
+
+2007-02-10 17:25 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Configfile.*: changed Configfile.{cpp,h} to be generated from Configfile.tmpl and
+Configfile.{cpp,h}.in . It should be MUCH easier to add new config options
+from now on. As a proof, adding options for the time to greylist and the
+initial delay were a breeze compared to before.
+
+* spit.cpp: instead of sending the data for thread_main in a pointer, send a
+pointer to a stack and just pop the last element added.
+
+2006-11-12 21:22 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* updated changelog to use gnu coding standards
+
+* autotoolize spit
+* Makefile.am
+* configure.in
+* Config.h: rename class to Configfile
+
+2006-10-22 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Socket.cpp: now creates the ssl context and loads certificates on the first socket
+creation, so we now use less memory per-thread, AND we also load the certs
+BEFORE chrooting, so now private_key and certificate DON'T need to be
+(and are NOT recomended) INSIDE the chroot, which is a cool security feature.
+
+2006-10-21 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* SQL.cpp: Changed SQL class so that every query is made through doQuery, that
+controls that everything works the right way.
+
+* Exception.cpp: When an Exception ocurrs, we notify it by email, either through smtp
+or through sendmail
+
+2006-10-15 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Config.cpp: Fixed Config.cpp::validateConfig to take into account chrooting
+
+* Socket.cpp: Fixed Socketp.cpp::close, we were sometimes closing fds twice
+
+* main.cpp: if you send SIGINT or SIGTERM once you close gracefully, if you do
+it twice, you forcefully stop the program, for when a socket is waiting to timeout,
+and you can't restart the proxy in-between
+
+2006-10-12 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Config.cpp: Overhauled Config class
+
+* main.cpp: fixed chrooting, now only /etc/resolv.conf is needed
+
+2006-10-08 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Socket.cpp: ssl is now fully working
+decimal time for waiting in Socket::canRead
+
+* SQL.cpp: whitelisting based on hostname of peer added.
+
+* Logger.cpp: implements a logger for unix
+
+* preeliminary port to solaris 10
+
+2006-09-24 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* LOTS of bugfixes, some change in semantics and a bit of heavy-work
+testing. Should be MUCH more stable now.
+
+2006-09-18 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* main.cpp (main): Made threads detached to allow them to free resources
+
+2006-09-17 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* main.cpp (main): Create a thread to clean the database each hour
+Threads now clean themselves up when finishing
+
+2006-09-16 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+* Initial import to svn

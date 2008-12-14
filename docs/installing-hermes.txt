@@ -1,0 +1,180 @@
+Installing hermes
+
+NOTE: this file has been generated from the source file
+http://www.hermes-project.com/pages/installing-hermes
+
+To install and configure a fully working hermes, you have to follow these
+steps:
+
+* Install_hermes
+* Configure_hermes
+* Change_your_current_SMTP_server_to_another_port
+
+
+Install hermes
+=================
+
+If you are going to install from source, you first need to have sqlite3
+installed with it's corresponding development package (usually sqlite3-devel or
+sqlite3-dev). If you want to install hermes with SSL support, you also need
+openssl with it's development headers (usually openssl-devel or openssl-dev).
+
+- From source
+
+If you have downloaded a .tar.gz or .tar.bz2 file, the procedure is as follows:
+
+  # tar xvfj hermes-1.0.tar.bz2 # extract file
+  # cd hermes-1.0 # change to the directory
+  # ./configure # execute configure
+  # make # compile
+  # make install # install
+
+- From a source RPM
+
+If you have downloaded a source rpm (.src.rpm) you have to compile it before
+installing. To do so, you need the rpmbuild program.
+
+  # rpmbuild --rebuild hermes-1.0.src.rpm
+
+After compiling, you should have a binary rpm on /usr/src/rpm/RPMS/i386 (or /
+usr/src/redhat/RPMS/i386, depending on your distribution). With this file,
+proceed to install the rpm.
+
+- From a binary RPM
+
+If you have downloaded a binary rpm (.rpm), installing should be pretty
+straightforward:
+
+  # rpm -ihv hermes-1.0.rpm
+
+Configure hermes
+===================
+
+This document will show you how to configure hermes in the most common way, but
+if you want to read the full help for the hermes options, go to the full
+reference_of_hermes_options.
+
+- Config file
+
+The first thing you need is a configuration file. There should be an example
+file on /usr/local/share/doc/hermes or /usr/share/doc/hermes called
+hermesrc.example. Copy this file to /etc/hermes/ (create the directory first if
+needed)
+
+  # mkdir /etc/hermes
+  # cp /usr/share/doc/hermes/hermesrc.example /etc/hermes/hermesrc
+
+Then edit the file, and let's start changing it:
+
+  # vi /etc/hermes/hermesrc
+
+- Editing the config
+
+In this section we will be creating a new file from scratch with only the
+minimum required to get hermes working.
+First, let's specify the user and group to drop privileges to:
+
+  user = nobody
+  group = nobody
+
+Now let's configure where the greylisting database is saved (defaults to /var/
+hermes/greylisting.db).
+
+  database_file = /var/hermes/greylisting.db
+
+The only thing left is to specify the host and port with our real SMTP server:
+
+  server_host = localhost
+  server_port = 2525
+
+After that, save the file and quit, and make sure that the database_file
+directory exists and that it is owned by the user and group we specified
+earlier
+
+  # mkdir /var/hermes
+  # chown nobody:nobody /var/hermes
+
+If you have compiled hermes with SSL support, you have to configure the
+certificate file and the private key
+
+  private_key_file = /etc/hermes/hermes.key
+  certificate_file = /etc/hermes/hermes.cert
+
+Now we have to generate the key file and the certificate. To do this we will
+use the openssl tool "openssl"
+
+  # openssl genrsa 1024 > /etc/hermes/hermes.key
+  Generating RSA private key, 1024 bit long modulus
+  ...................................................++++++
+  .......++++++
+  e is 65537 (0x10001)
+  # openssl req -new -x509 -nodes -sha1 -days 365 -key /etc/hermes/hermes.key > /etc/hermes/hermes.cert
+  (at this point, openssl will ask lots of questions about your contact
+  information, organization, and the like. Once it's over, the certificate will
+  be generated)
+
+Our resulting file looks like this:
+
+  user = nobody
+  group = nobody
+  database_file = /var/hermes/greylisting.db
+  server_host = localhost
+  server_port = 2525
+  private_key_file = /etc/hermes/hermes.key
+  certificate_file = /etc/hermes/hermes.cert
+
+Change your server's port
+============================
+
+Changing the port of your SMTP server is a very different proccess depending on
+your SMTP software, although they basically involve editing a file to change
+the port number from 25 (default) to another port number. This document will
+show you how to change the port number from 25 to 2525, which is hermes'
+default. If your server's software is not listed here, try to search for
+"<software-name> change default port" (i.e. "sendmail change default port") in
+your favourite search engine.
+
+- Sendmail
+
+To change sendmail port, edit your sendmail.mc file (usually on /etc/mail) and
+edit the line that says:
+
+  DAEMON_OPTIONS(`Port=smtp, Name=MTA')
+
+and change the Port from smtp to 2525
+
+  DAEMON_OPTIONS(`Port=2525, Name=MTA')
+
+After that type make to rebuild sendmail.cf
+
+  # make
+
+And restart sendmail.
+Of course, you can always edit the sendmail.cf directly, but if you know how/
+what to change, then you don't need this help.
+
+- Postfix
+
+If you are using postfix, edit /etc/postfix/master.cf and change the line that
+reads
+
+  smtp inet n - n - - smtpd
+
+to read
+
+  2525 inet n - n - - smtpd
+
+After that, restart postfix.
+
+- Qmail
+
+The easiest way to configure qmail's listening port is to edit /etc/services
+and change the line that says
+
+  smtp 25/tcp mail
+
+to
+
+  smtp 2525/tcp mail
+
+and restart qmail.

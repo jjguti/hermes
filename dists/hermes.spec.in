@@ -1,0 +1,77 @@
+Summary:        An anti-spam SMTP proxy
+Name:           @PACKAGE@
+Version:        @VERSION@
+Release:        0
+License:        GPL
+Group:          System Environment/Daemons
+Packager:       Veit Wahlich <cru@zodia.de>
+URL:            http://www.hermes-project.com/
+Source0:        http://www.hermes-project.com/files/%{name}-%{version}.tar.bz2
+Buildroot:      %{_tmppath}/%{name}-%{version}-%{release}-root
+
+%description
+hermes is a generic, lightweight, portable and fast anti-spam smtp proxy.
+Supports greylisting, dns blacklisting/whitelisting, protocol throttling, banner delaying, spf and some
+other tricks to reject most spam before it even enters your system.
+
+%prep
+%setup -q
+
+%build
+%configure --docdir=%{_datadir}/doc/%{name}-%{version}
+%__make %{?_smp_mflags}
+
+%install
+%__rm -rf %{buildroot}
+%__make DESTDIR=%{buildroot} install
+%__mkdir_p %{buildroot}%{_sysconfdir}/rc.d/init.d
+%__mkdir_p %{buildroot}%{_sysconfdir}/hermes
+%__mkdir_p %{buildroot}%{_localstatedir}/hermes
+%__install -m 0755 dists/fc_init %{buildroot}%{_sysconfdir}/rc.d/init.d/hermes
+%__install -m 0600 dists/hermesrc.example %{buildroot}%{_sysconfdir}/hermes/hermesrc
+
+%clean
+%__rm -rf %{buildroot}
+
+%post
+/sbin/chkconfig --add hermes
+
+%preun
+if [ $1 = 0 ]; then	# execute this only if we are NOT doing an upgrade
+    %{_sysconfdir}/rc.d/init.d/hermes stop >/dev/null 2>&1
+    /sbin/chkconfig --del hermes
+fi
+exit 0
+
+%files
+%defattr(-, root, root, 0755)
+%doc ChangeLog TODO AUTHORS dists/hermesrc.example docs/hermes-options.html docs/installing-hermes.txt docs/gpl.txt
+%{_bindir}/hermes
+%{_sysconfdir}/rc.d/init.d/hermes
+%config %{_sysconfdir}/hermes/hermesrc
+%dir %attr(0700,nobody,nobody) %{_localstatedir}/hermes
+
+%changelog
+* Thu Jun 14 2007 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com> 1.4
+- removed patches, they are now on upstream
+
+* Fri May 25 2007 Veit Wahlich <cru@zodia.de> 1.3-2
+- added patch fix_whether (documentation fixes)
+- added patch add_rejectnoresolve (reject on no DNS reverse resolution feature)
+- changed RPM group to system daemon standard
+
+* Sat May 19 2007 Veit Wahlich <cru@zodia.de> 1.3-1
+- Made /etc/hermes/hermesrc readonly as it may contain passwords
+- Fixed ownership and permissions of /var/hermes to match configuration default
+- Silenced setup macro output as required by some distributions
+- Fixed docdir to a LSB compliant location, will be replaced by rpmbuild
+- Packaged extra documentation
+- Removed hermes-options.html.in from docs
+- Use directory macros for files section
+- Further specfile cleanups and macro usage
+
+* Tue May 15 2007 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+- Fixed rpm to create /var/hermes
+
+* Fri Apr 11 2007 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+- Initial release

@@ -1,0 +1,172 @@
+/**
+ * hermes antispam proxy
+ * Copyright (C) 2006, 2007 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * @author Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+ */
+#include "Configfile.h"
+
+/**
+ * default config
+ *
+ */
+Configfile::Configfile()
+{
+%templ_default_values%
+}
+
+void Configfile::parse(string file)
+{
+  ifstream f;
+  char line[255];
+  int equalpos;
+
+  f.open(file.c_str(),ios::in);
+  while(!f.eof())
+  {
+    f.getline(line,255);
+    string l=Utils::trim(line);
+    if('#'!=l[0]&&l!=""&&l.find("="))
+    {
+      equalpos=l.find("=");
+      string option=Utils::trim(l.substr(0,equalpos));
+      string value=Utils::trim(l.substr(equalpos+1));
+      #ifdef REALLY_VERBOSE_DEBUG
+        cout << l << endl;
+        cout << option << "->" << value << endl;
+      #endif //REALLY_VERBOSE_DEBUG
+      //this is a bit of a hack, but simplifies a lot this function
+      #define PARSE_INT(x,y) if(x==option) y=Configfile::parseAsInt(value); else
+      #define PARSE_BOOL(x,y) if(x==option) y=Configfile::parseAsBool(value); else
+      #define PARSE_STRING(x,y) if(x==option) y=Configfile::parseAsString(value); else
+      #define PARSE_LIST(x,y) if(x==option) y=Configfile::parseAsList(value); else
+
+      %templ_parsevars%
+      {
+        throw Exception("Option \""+option+"\" with value \""+value+"\" is not recognized",__FILE__,__LINE__);
+      }
+      #undef PARSE_INT
+      #undef PARSE_BOOL
+      #undef PARSE_STRING
+      #undef PARSE_LIST
+    }
+  }
+  #ifndef WIN32
+    uid=Utils::usertouid(user);
+    gid=Utils::grouptogid(group);
+  #endif //WIN32
+  f.close();
+}
+
+//again, this is a BIG HACK, but it simplifies code a lot
+#define GET_VAR(x,y,z) z Configfile::x(){ return y;}
+
+GET_VAR(getUid,uid,int)
+GET_VAR(getGid,gid,int)
+%templ_getmethods%
+
+#undef GET_VAR
+
+void Configfile::validateConfig()
+{
+  #ifndef WIN32
+    //check if we are root if we want to bind to a port lower than 1024
+    if(getuid()!=0&&listening_port<1024)
+      throw Exception(_("You can't bind to a port lower than 1024 without being root"),__FILE__,__LINE__);
+  #endif //WIN32
+
+  #ifdef HAVE_SSL
+    //check if ssl is usable
+    if(!Utils::file_exists(certificate_file))
+      throw Exception("Certificate file "+certificate_file+" doesn't exist.\nTo generate a certificate look in hermesrc.example, there is an example there.",__FILE__,__LINE__);
+
+    if(!Utils::file_exists(private_key_file))
+      throw Exception("Private key file "+private_key_file+" doesn't exist.\nTo generate a private key look in hermesrc.example, there is an example there.",__FILE__,__LINE__);
+  #endif //HAVE_SSL
+
+  #ifndef WIN32
+  //check if chroot dir exist //TODO: check that files needed in chroot exist
+  //for now only /etc/resolv.conf, but we're working on it :-D
+  if(""!=chroot&&!Utils::dir_exists(chroot))
+    throw Exception("Directory "+chroot+" doesn't exist, can't chroot to it.",__FILE__,__LINE__);
+  #endif //WIN32
+
+  //check if we have submit_stats on but no user and password
+  if(getSubmitStats()&&(""==getSubmitStatsUsername()||""==getSubmitStatsPassword()))
+    throw Exception("You have configured hermes to send stats, but have not configured a username or password.\n"
+      "If you don't have one, go to http://www.hermes-project.com and register there",__FILE__,__LINE__);
+
+  #ifndef HAVE_SSL
+  //check if we have activated submit_stats_ssl not having ssl activated
+  if(getSubmitStatsSsl())
+    throw Exception("You have configured stats submission through SSL, but hermes was compiled without SSL support",__FILE__,__LINE__);
+  #endif //HAVE_SSL
+  
+}
+
+string Configfile::parseAsString(string str)
+{
+  //remove "" round the string
+  if('"'==str[0])
+    str=str.substr(1);
+  if('"'==str[str.length()-1])
+    str=str.substr(0,str.length()-1);
+
+  return str;
+}
+
+bool Configfile::parseAsBool(string str)
+{
+  if("yes"==str||"on"==str||"1"==str||"true"==str)
+    return true;
+  else
+    return false;
+}
+
+long int Configfile::parseAsInt(string str)
+{
+  long int value;
+
+  errno=0; //to know why we do this, read NOTES on strtol(3)
+  value=strtol(str.c_str(),NULL,10);
+  if(errno)
+    throw Exception("Error parsing as int ("+Utils::errnotostrerror(errno)+")",__FILE__,__LINE__);
+
+  return value;
+}
+
+list<string> Configfile::parseAsList(string str)
+{
+  list<string> tmpList;
+  string::size_type startpos=0,endpos=0,len;
+  string tmpstr;
+
+  str=Configfile::parseAsString(str); //remove quotes around string
+
+  len=str.length();
+  while(startpos<len&&string::npos!=endpos)
+  {
+    endpos=str.find(',',startpos);
+    if(string::npos==endpos)
+      tmpstr=str.substr(startpos);
+    else
+      tmpstr=str.substr(startpos,endpos-startpos);
+    tmpList.push_back(Utils::trim(tmpstr));
+    startpos=endpos+1;
+  }
+
+  return tmpList;
+}

@@ -1,0 +1,253 @@
+#include "../config.h"
+
+* comments MUST begin with a #.
+*
+* boolean options recognise (true, 1, on, yes) as true
+* and anything else as false
+*
+* string literals can be surrounded by the " character,
+* but everything else CANNOT be
+*
+
+*clean*
+#ifndef WIN32
+
+* whether to fork to the background. initscripts require 
+* this to be true most of the time.
+bool,background,true
+
+* chroot to this directory on startup.
+* this path is ABSOLUTE, it WON'T work with a relative path,
+* because we are chrooting to the dir BEFORE chrooting, as a
+* security measure.
+* to disable chrooting, use an empty string (default).
+string,chroot,""
+
+* drop privileges once running? recomended.
+bool,drop_privileges,true
+
+* user to drop privileges to.
+string,user,"nobody"
+
+* group to drop privileges to.
+string,group,"nobody"
+
+* write a pid file with the pid of the main hermes server.
+* if you set background=true above, this will write the pid 
+* of the forked hermes, not the original.
+string,pid_file,"/var/run/hermes.pid"
+#endif //WIN32
+
+* the port where hermes will listen for new connection.
+* if you are going to use a port lower than 1024 (almost always,
+* smtp is 25, smtps is 465 and delivery is 587), then you need
+* to run as root (you can drop privileges) or with setUID active.
+int,listening_port,25
+
+* the ip to bind to. if you leave it empty (default), then it 
+* listens on all available ips
+string,bind_to,""
+
+* the host of the real smtp server.
+* if your server is qmail and you have the AUTH patch,
+* DON'T use localhost, use the external IP instead.
+string,server_host,"localhost"
+
+* the port for the real smtp server.
+int,server_port,2525
+
+* database file to use.
+* if you are chrooting, the path is relative to the chroot:
+*  real filepath = chroot + database_file
+#ifdef WIN32
+string,database_file,"greylisting.db"
+#else
+string,database_file,"/var/hermes/greylisting.db"
+#endif //WIN32
+
+* whether to use greylisting.
+* greylisting will slightly delay your emails (configurable, see below)
+* to stop most spam. is the most efective technique in use by hermes.
+bool,greylist,true
+
+* whether to throttle connection.
+* it will force some spammers (the more impatient ones) to drop the connection
+* and leave you alone.
+bool,throttle,true
+
+* throttling time
+* this is the time (in seconds) that hermes will wait between each sent line.
+* don't set this too high (more than 3), as that will drop MANY connections
+int,throttling_time,1
+
+* whether we should check if there is data before we send the SMTP banner.
+* if there is data the email is almost certainly spam.
+bool,allow_data_before_banner,false
+
+* dns blacklist domain list to check.
+* if this is empty (default) hermes will not check anything, effectively disabling
+* dns blacklisting.
+* recommended value is "zen.spamhaus.org"
+list,dns_blacklist_domains,""
+
+* percentage of domains that have to blacklist an ip before considering it blacklisted.
+* for example if you need a domain to be listed in only half of the blacklists to be considered
+* as listed, just define dns_blacklist_percentage as 50 (50%)
+int,dns_blacklist_percentage,100
+
+* dns whitelist domain to check.
+* if this is empty (default) hermes will not check anything, effectively disabling
+* dns whitelisting.
+* this lists should only list hosts that have a history of NOT sending spam.
+* recommended value is "list.dnswl.org"
+list,dns_whitelist_domains,""
+
+* percentage of domains that have to whitelist an ip before considering it whitelisted.
+* for example if you need a domain to be listed in only half of the whitelists to be considered
+* as listed, just define dns_whitelist_percentage as 50 (50%).
+int,dns_whitelist_percentage,100
+
+* time to delay the initial SMTP banner
+int,banner_delay_time,5
+
+#ifdef REALLY_VERBOSE_DEBUG
+* email to notify exceptions to.
+* CAVEAT: the code that does this is VERY BUGGY and VERY VERBOSE, don't use unless you
+* are a developer looking for a bug.
+string,notify_to,""
+#endif //REALLY_VERBOSE_DEBUG
+
+* greylisting options.
+*
+*clean*
+
+* initial expiry time.
+* when email is first recorded, it will expire after this time (in minutes).
+int,initial_expiry,240
+
+* initial period of time (in minutes) during which a retry on the spammer's side will FAIL.
+int,initial_blacklist,5
+
+* once we have whitelisted a triplet, how long it stays whitelisted (in days).
+* 36 is a magic number, is the maximum days between a day and the same day next month
+int,whitelist_expiry,36
+
+* whether to submit stats.
+bool,submit_stats,true
+
+* should stats be submited using SSL?
+* recomended, but some people will compile without ssl.
+#ifdef HAVE_SSL
+bool,submit_stats_ssl,true
+#else
+bool,submit_stats_ssl,false
+#endif //HAVE_SSL
+
+* username (used to submit stats).
+* you can register on http://www.hermes-project.com
+string,submit_stats_username,"anonymous"
+
+* password
+string,submit_stats_password,"anonymous"
+
+#if LOGGER_CLASS==FileLogger
+* if you are using the filelogger, which file to log to.
+string,file_logger_filename,"hermes.log"
+
+* whether to keep the logger file locked between writes
+bool,keep_file_locked,true
+
+* frequency for log rotating in minutes
+* default is 1440 (1 day)
+* 0 means no rotation
+int,log_rotation_frequency,1440
+
+* format for the logfile rotation
+* if you are using logfile rotation, file_logger represents the filename
+* to which the logger will write, while this is the name files will get
+* when rotated
+* you can use the following variables:
+*  %%year%% - current year (4 digits)
+*  %%month%% - current month
+*  %%day%% - current day
+*  %%hour%% - current hour
+*  %%minute%% - current minute
+* all of them are zero-padded
+string,rotate_filename,"hermes-%%year%%-%%month%%-%%day%%-%%hour%%:%%minute%%.log"
+#endif //LOGGER_CLASS==FileLogger
+
+* whether to clean the database file and send stats.
+* if you have two instances of hermes running (for example one for smtp and other for smtps)
+* you want to configure all of them but one to use clean_db=false.
+* also, you might prefer to not clean the database at all for many reasons (for example to 
+* keep a huge file around with all your system's email data).
+* anyway, this doesn't mean in anyway that entries in the database won't expire, only that they
+* will be left hanging around without any use.
+bool,clean_db,true
+
+#ifdef HAVE_SSL
+* ssl-related config options
+* NOTE: this NEEDS the openssl library
+*
+*clean*
+
+* should we try to connect to our real smtp server using ssl?
+* not really neccesary unless real smtp server is on other machine.
+bool,outgoing_ssl,false
+
+* should we accept connections using ssl?
+* NOTE: this does NOT disable the starttls capability, only starts hermes expecting SSL negotiation.
+* starttls is handled the following way: if you have ssl, it is always on. clients can request it at
+* any time an hermes will change to ssl at once. if you don't have ssl, hermes will refuse to starttls
+* with a 354 error code, although it WILL still accept the command. connection should proceed normally
+* even on that event
+bool,incoming_ssl,false
+
+* file with our private key (PEM format).
+* to generate, execute:
+*   # openssl genrsa 1024 > private.key
+string,private_key_file,"/etc/hermes/hermes.key"
+
+* file with our server certificate (PEM format).
+* to generate, execute:
+*   # openssl req -new -x509 -nodes -sha1 -days 365 -key private.key > certificate.crt
+* and answer the questions
+string,certificate_file,"/etc/hermes/hermes.cert"
+#endif //HAVE_SSL
+
+* whether to add headers to the email sent or no.
+* to be rfc compatible this HAS to be true, but if you set to false, no one will know you are using hermes
+bool,add_headers,true
+
+* the hostname to use for the headers. useful only in case that gethostname() returns
+* something that is not correct. For example on windows, it seems to return only the host
+* part of the name.
+*
+* if this is empty, hermes will use the value returned by gethostname()
+string,hostname,""
+
+* should a whitelisted hostname or whitelisted ip also disable throttling and banner delaying?
+* it is useful to make remote hosts deliver mail almost at once
+bool,whitelisted_disables_everything,true
+
+* whether to reject connections from hosts that do not provide DNS reverse resolution.
+* don't enable if you don't know what you are doing or what this switch does
+bool,reject_no_reverse_resolution,false
+
+* check whether your ehlo hostname matches your ip reverse resolution.
+* don't enable unless you understand perfectly what this means
+bool,check_helo_against_reverse,false
+
+* whether to query the spf record for the incoming domain.
+* should help, enable if you have libspf (if you don't, install it and recompile)
+#ifdef HAVE_SPF
+bool,query_spf,true
+#else
+bool,query_spf,false
+#endif //HAVE_SPF
+
+* return temporary error instead of permanent error.
+* Currently, this only applies to SPF and DNSBL rejected email
+* You should enable this while debugging your hermes installation,
+* as configuration errors won't be fatal.
+bool,return_temp_error_on_reject,false

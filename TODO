@@ -1,0 +1,21 @@
+TODO:
+-----
+
+check ipv6 support, although I don't have any machine configured with ipv6..., but work is required anyway
+
+windows Service
+windowsishms
+
+create documentation!!!!!!
+add to documentation a note about the importance of correctly whitelisting peer hostname(you need a DOT before the name, so for example bongmail.com doesn't match against .gmail.com)
+
+check return value from some functions
+document some functions
+
+check segfaults when receiving 1000+ threads
+
+inet_ntoa/ntoa_inet are static!!!
+
+reduce memory consumption per-thread
+profile program
+run through valgrind

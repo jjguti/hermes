@@ -1,0 +1,52 @@
+/**
+ * hermes antispam proxy
+ * Copyright (C) 2006, 2007 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 of the License
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ * @author Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+ */
+#ifndef CONFIGFILE_H
+#define CONFIGFILE_H
+
+#include "hermes.h"
+#include <list>
+#include <string>
+#include <iostream>
+#include <fstream>
+
+#include "Utils.h"
+
+using namespace std;
+
+class Configfile
+{
+  private:
+    static string parseAsString(string);
+    static bool parseAsBool(string);
+    static long parseAsInt(string);
+    static list<string> parseAsList(string);
+    int uid;
+    int gid;
+    %templ_privateattribs%
+  public:
+    Configfile();
+    void parse(string);
+    void validateConfig();
+    int getUid();
+    int getGid();
+    %templ_publicmethods%
+};
+
+#endif //CONFIGFILE_H
