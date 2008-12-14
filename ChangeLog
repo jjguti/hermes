@@ -1,6 +1,39 @@
 ChangeLog
 ---------
 
+2008-12-14 20:17 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* 1.7 release
+
+* Implemented log rotation for filelogger. Sponsored by Damir Simunic of
+http://edgeof.net
+
+* Updated email address... again
+
+
+2008-08-30 21:35 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Updated email address.
+
+
+2007-11-28 19:54 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Fixed some sqls
+
+
+2007-11-20 19:14 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Added a small feature sponsored by http://www.pixelkinder.com. It allows to 
+specify a list of valid ips for each domain, if a mail comes from an ip not on 
+the list, then reject it.
+
+
+2007-10-02 11:33 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* Add blacklisting based on the "to" address and domain. Useful to migrate
+sites and to correct MTAs errors.
+
+
 2007-07-20 20:03 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
 
 * 1.6 release
