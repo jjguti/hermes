@@ -300,14 +300,14 @@ void Proxy::run(string &peer_address)
           throttled=false;
           authenticated=true;
         }
-        if("250-pipelining"==Utils::strtolower(strtemp)) //this solves our problems with pipelining-enabled servers
+        if("250-pipelining"==Utils::strtolower(strtemp)||"250-chunking"==Utils::strtolower(strtemp)) //this solves our problems with pipelining-enabled servers
           strtemp="";
 
         //this is a special case, we can't just ignore the line if it's the last line (doesn't have the dash after the code)
         //so we just say we support an imaginary extension (noextension).
         //caveat: this makes us identificable, so, if you can, configure your smtp server to either don't support pipelining
         //or to not advertise it as the last capability.
-        if("250 pipelining"==Utils::strtolower(strtemp))
+        if("250 pipelining"==Utils::strtolower(strtemp)||"250 chunking"==Utils::strtolower(strtemp))
           strtemp="250 x-noextension";
         if(strtemp.length())
           outside.writeLine(strtemp);
