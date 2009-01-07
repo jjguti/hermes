@@ -8,6 +8,8 @@ ChangeLog
 * Implemented log rotation for filelogger. Sponsored by Damir Simunic of
 http://edgeof.net
 
+* Disable chunking extension, it interferes with hermes operation
+
 * Updated email address... again
 
 
