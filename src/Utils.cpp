@@ -346,6 +346,17 @@ bool Utils::file_exists(string file)
   }
 }
 
+string Utils::get_canonical_filename(string file)
+{
+  char *buffer=NULL;
+  string result;
+
+  buffer=realpath(file.c_str(),NULL);
+  result=buffer;
+  free(buffer);
+
+  return result;
+}
 /**
  * whether a directory is accesible by current process/user
  *

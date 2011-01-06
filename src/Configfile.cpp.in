@@ -19,6 +19,8 @@
  */
 #include "Configfile.h"
 
+extern LOGGER_CLASS hermes_log;
+
 /**
  * default config
  *
@@ -34,6 +36,7 @@ void Configfile::parse(string file)
   char line[255];
   int equalpos;
 
+  hermes_log.addMessage(LOG_INFO,"parsing "+Utils::get_canonical_filename(file)+" configuration file");
   f.open(file.c_str(),ios::in);
   while(!f.eof())
   {

@@ -1,9 +1,15 @@
 ChangeLog
 ---------
 
-2008-12-14 20:17 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+2011-01-06 23:53 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
 
-* 1.7 release
+* development restarted
+
+* print a small message about which config file we are actually using. Some
+people seem to have gotten confused about this...
+
+
+2008-12-14 20:17 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
 
 * Implemented log rotation for filelogger. Sponsored by Damir Simunic of
 http://edgeof.net

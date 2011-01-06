@@ -74,6 +74,7 @@ class Utils
     #endif //WIN32
 
     //misc
+    static string get_canonical_filename(string);
     static bool file_exists(string);
     static bool dir_exists(string);
     static string errnotostrerror(int);
