@@ -60,7 +60,7 @@ LOGGER_CLASS hermes_log;
 //print at the start of log messages
 __thread unsigned long connection_id;
 
-list<pthread_t> children;
+list<unsigned long> children;
 
 #ifdef HAVE_SSL
 pthread_mutex_t ssl_locks[CRYPTO_NUM_LOCKS]={PTHREAD_MUTEX_INITIALIZER};
@@ -223,7 +223,7 @@ main
       {
 	LDEB("New thread created [" + Utils::ulongtostr(nconns) + "] thread_id: " + Utils::ulongtostr(thread));
         pthread_mutex_lock(&childrenlist_mutex);
-        children.push_back(thread);
+        children.push_back(nconns);
         pthread_mutex_unlock(&childrenlist_mutex);
       }
     }
@@ -321,7 +321,7 @@ void *cleaner_thread_run(void *)
 
           pthread_mutex_lock(&childrenlist_mutex);
           ss << children.size() << " threads running: ";
-          for(list<pthread_t>::iterator i=children.begin();i!=children.end();i++)
+          for(list<unsigned long>::iterator i=children.begin();i!=children.end();i++)
             ss << "[ " << *i << " ] ";
           pthread_mutex_unlock(&childrenlist_mutex);
           ss << endl;
@@ -364,7 +364,7 @@ void *thread_main(void *info_stack)
     client.setFD(peerinfo.new_fd);
     p.setOutside(client);
     p.run(peerinfo.peer_address);
-    remove_thread_from_list(pthread_self());
+    remove_thread_from_list(connection_id);
   }
   catch(Exception &e)
   {
