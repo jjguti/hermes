@@ -35,7 +35,7 @@ using namespace std;
 class NullLogger: public Logger
 {
   public:
-    void addMessage(int,string){}; //ignore messages
+    void addMessage(string,int,int,string){}; //ignore messages
 };
 
 #endif //NULLLOGGER_H

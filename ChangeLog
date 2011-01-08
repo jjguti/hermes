@@ -1,6 +1,10 @@
 ChangeLog
 ---------
 
+2011-01-08 19:28 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* fixed NullLogger
+
 2011-01-08 17:22 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
 
 * fixed small bug when submitting stats that would stop the thread that
