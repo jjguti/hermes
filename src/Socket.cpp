@@ -300,9 +300,9 @@ void Socket::writeByte(char c)
 void Socket::writeLine(string s)
 {
 
+  LDEB("w>"+s);
   s+="\r\n";
 
-  LDEB("w>"+s);
   writeBytes((void *)s.c_str(),s.length());
 }
 
