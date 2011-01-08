@@ -429,6 +429,7 @@ unsigned long Database::cleanDB()
   }
   catch(Exception &e)
   {
+    LERR(e);
     doQuery("ROLLBACK TRANSACTION");
   }
 

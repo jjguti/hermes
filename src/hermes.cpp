@@ -278,7 +278,14 @@ void *cleaner_thread_run(void *)
       {
         unsigned long spamcount;
 
-        spamcount=db.cleanDB();
+        try
+        {
+          spamcount=db.cleanDB();
+        }
+        catch(Exception &e)
+        {
+          LERR("Error cleaning the database: " + string(e));
+        }
         LDEB("Cleaning database, cleaning "+Utils::inttostr(spamcount)+" blocked spams.");
         if(spamcount>0&&cfg.getSubmitStats())
         {
