@@ -1,6 +1,10 @@
 ChangeLog
 ---------
 
+2011-01-08 02:27 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* revamped logging system. hopefully, messages will be more informative now
+
 2011-01-06 23:53 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
 
 * development restarted

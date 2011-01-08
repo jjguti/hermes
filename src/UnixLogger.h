@@ -37,7 +37,7 @@ class UnixLogger: public Logger
   public:
     UnixLogger();
     ~UnixLogger();
-    void addMessage(int,string);
+    void addMessage(string,int,int,string);
 };
 
 #endif //UNIXLOGGER_H

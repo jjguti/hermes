@@ -19,6 +19,8 @@
  */
 #include "Database.h"
 
+extern LOGGER_CLASS hermes_log;
+
 void Database::setDatabaseFile(string p_dbfile)
 {
   dbfile=p_dbfile;
@@ -33,6 +35,8 @@ void Database::setDatabaseFile(string p_dbfile)
 void Database::doQuery(string p_sql)
 {
   int retval;
+  bool was_busy=false;
+
   do
   {
     retval=sqlite3_exec(dbh,p_sql.c_str(),NULL,NULL,NULL);
@@ -41,12 +45,13 @@ void Database::doQuery(string p_sql)
     if(SQLITE_BUSY==retval)
     {
       sleep(1+rand()%2);
-      #ifdef REALLY_VERBOSE_DEBUG
-      cout << pthread_self() << " doquery() sql failed with busy state, retrying" << endl;
-      #endif //REALLY_VERBOSE_DEBUG
+      LERR("doquery() sql failed with busy state, retrying");
+      was_busy=true;
     }
   }
   while(SQLITE_BUSY==retval);
+  if(was_busy)
+    LERR("doquery() executed correctly after failing initially");
 }
 
 string Database::cleanString(string s)
@@ -85,6 +90,7 @@ bool Database::greylisted(string ip,string from,string to,int initial_expiry,int
   int nrow=0;
   int ncolumn=0;
   bool retval=true;
+  bool was_busy=false;
   int sqlite_retval;
   int now=time(NULL);
   string strnow=Utils::inttostr(now);
@@ -102,12 +108,13 @@ bool Database::greylisted(string ip,string from,string to,int initial_expiry,int
     if(SQLITE_BUSY==sqlite_retval)
     {
       sleep(1+rand()%2);
-      #ifdef REALLY_VERBOSE_DEBUG
-      cout << pthread_self() << " greylisted() sql busy" << endl;
-      #endif //REALLY_VERBOSE_DEBUG
+      LERR("greylisted() sql failed with busy state, retrying");
+      was_busy=true;
     }
   }
   while(sqlite_retval==SQLITE_BUSY);
+  if(was_busy)
+    LERR("greylisted() executed correctly after failing initially");
 
   sql="";
 
@@ -203,6 +210,7 @@ int Database::countRows(string p_sql)
   int nrow=0;
   int ncolumn=0;
   int sqlite_retval;
+  bool was_busy=false;
 
   do
   {
@@ -216,12 +224,13 @@ int Database::countRows(string p_sql)
     if(SQLITE_BUSY==sqlite_retval)
     {
       sleep(1+rand()%2);
-      #ifdef REALLY_VERBOSE_DEBUG
-      cout << pthread_self() << " countRows() retrying" << endl;
-      #endif //REALLY_VERBOSE_DEBUG
+      LERR("countRows() sql failed with busy state, retrying");
+      was_busy=true;
     }
   }
   while(SQLITE_BUSY==sqlite_retval);
+  if(was_busy)
+    LERR("countRows() executed correctly after failing initially");
 
   if(NULL!=result)
     sqlite3_free_table(result);
@@ -357,6 +366,7 @@ unsigned long Database::getIntValue(string& p_sql)
   int nrow=0;
   int ncolumn=0;
   int sqlite_retval;
+  bool was_busy=false;
   unsigned long value;
 
   do
@@ -371,12 +381,13 @@ unsigned long Database::getIntValue(string& p_sql)
     if(SQLITE_BUSY==sqlite_retval)
     {
       sleep(1+rand()%2);
-      #ifdef REALLY_VERBOSE_DEBUG
-        cout << pthread_self() << " getIntValue() retrying" << endl;
-      #endif //REALLY_VERBOSE_DEBUG
+      LERR("getIntValue() sql failed with busy state, retrying");
+      was_busy=true;
     }
   }
   while(SQLITE_BUSY==sqlite_retval);
+  if(was_busy)
+    LERR("getIntValue() executed correctly after failing initially");
 
   if(NULL==result)
     throw SQLException("SQL: "+p_sql+" didn't return any data, SQL query may be wrong",__FILE__,__LINE__);
@@ -408,9 +419,7 @@ unsigned long Database::cleanDB()
     //we do it always because if we don't submit stats it stills appears on the logs
     sql="SELECT SUM(blocked) FROM greylist WHERE expires<strftime('%s','now') AND passed=0;";
     spamcount=getIntValue(sql);
-    #ifdef REALLY_VERBOSE_DEBUG
-    cout << "We have processed " << spamcount << " spam emails in the last 4 hours" << endl;
-    #endif //REALLY_VERBOSE_DEBUG
+    LINF("We have processed " + Utils::ulongtostr(spamcount) + " spam emails in the last 4 hours");
 
     //at last, delete them from the database
     doQuery("DELETE FROM greylist WHERE expires<strftime('%s','now');");

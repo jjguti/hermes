@@ -31,7 +31,7 @@ class Logger
 {
   public:
     virtual ~Logger(){}; //empty destructor, not creating anything
-    virtual void addMessage(int,string)=0;
+    virtual void addMessage(string,int,int,string)=0;
 };
 
 #ifndef WIN32

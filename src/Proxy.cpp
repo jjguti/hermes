@@ -36,10 +36,6 @@ void Proxy::setOutside(Socket& p_outside)
  */
 void Proxy::run(string &peer_address)
 {
-  #ifdef REALLY_VERBOSE_DEBUG
-  string debugLog="\r\n";
-  #endif //REALLY_VERBOSE_DEBUG
-
   #ifdef HAVE_SPF
   Spf spf_checker;
   #endif //HAVE_SPF
@@ -76,10 +72,7 @@ void Proxy::run(string &peer_address)
         sleep(cfg.getBannerDelayTime());
         if(outside.canRead(0))  //if we have data waiting before the server gives us a 220 then quit, it's spam
         {
-          #ifdef REALLY_VERBOSE_DEBUG
-          cout << peer_address << " sent data before 220, exiting..." << endl;
-          #endif //REALLY_VERBOSE_DEBUG
-          hermes_log.addMessage(LOG_INFO,"421 (data_before_banner) (ip:"+peer_address+")");
+          LINF("421 (data_before_banner) (ip:"+peer_address+")");
           sleep(20); // but first let's annoy spammers once more
           outside.writeLine("421 Stop sending data before we show you the banner");
           return;
@@ -101,9 +94,6 @@ void Proxy::run(string &peer_address)
       if(outside.canRead(0.2))  //client wants to send something to server
       {
         strtemp=outside.readLine();
-        #ifdef REALLY_VERBOSE_DEBUG
-        debugLog+="c> "+strtemp+"\r\n";
-        #endif //REALLY_VERBOSE_DEBUG
         if(outside.isClosed())
           return;
         if(strtemp.length()>10&&"mail from:"==Utils::strtolower(strtemp.substr(0,10)))
@@ -147,9 +137,7 @@ void Proxy::run(string &peer_address)
             code="421";
             mechanism="greylist";
             message=code+" Greylisted!! Please try again in a few minutes.";
-            #ifdef REALLY_VERBOSE_DEBUG
-            cout << "Checking " << mechanism << endl;
-            #endif //REALLY_VERBOSE_DEBUG
+	    LINF("checking " + mechanism);
           }
           #ifdef HAVE_SPF
           else if(cfg.getQuerySpf()&&!authenticated&&!spf_checker.query(peer_address,ehlostr,from))
@@ -157,9 +145,7 @@ void Proxy::run(string &peer_address)
             code=cfg.getReturnTempErrorOnReject()?"421":"550";
             mechanism="spf";
             message=code+" You do not seem to be allowed to send email for that particular domain.";
-            #ifdef REALLY_VERBOSE_DEBUG
-            cout << "Checking " << mechanism << endl;
-            #endif //REALLY_VERBOSE_DEBUG
+	    LINF("checking " + mechanism);
           }
           #endif //HAVE_SPF
           //check blacklist
@@ -168,9 +154,7 @@ void Proxy::run(string &peer_address)
             code=cfg.getReturnTempErrorOnReject()?"421":"550";
             mechanism="allowed-domain-per-ip";
             message=code+" You do not seem to be allowed to send email to that particular domain from that address.";
-            #ifdef REALLY_VERBOSE_DEBUG
-            cout << "Checking " << mechanism << endl;
-            #endif //REALLY_VERBOSE_DEBUG
+	    LINF("checking " + mechanism);
           }
           //check rbl
           else if(!cfg.getDnsBlacklistDomains().empty()&&!authenticated&&Utils::listed_on_dns_lists(cfg.getDnsBlacklistDomains(),cfg.getDnsBlacklistPercentage(),peer_address))
@@ -178,27 +162,21 @@ void Proxy::run(string &peer_address)
             code=cfg.getReturnTempErrorOnReject()?"421":"550";
             mechanism="dnsbl";
             message=code+" You are listed on some DNS blacklists. Get delisted before trying to send us email.";
-            #ifdef REALLY_VERBOSE_DEBUG
-            cout << "Checking " << mechanism << endl;
-            #endif //REALLY_VERBOSE_DEBUG
+	    LINF("checking " + mechanism);
           }
           else if(cfg.getRejectNoReverseResolution()&&!authenticated&&""==resolvedname)
           {
             code=cfg.getReturnTempErrorOnReject()?"421":"550";
             mechanism="no reverse resolution";
             message=code+" Your IP address does not resolve to a hostname.";
-            #ifdef REALLY_VERBOSE_DEBUG
-            cout << "Checking " << mechanism << endl;
-            #endif //REALLY_VERBOSE_DEBUG
+	    LINF("checking " + mechanism);
           }
           else if(cfg.getCheckHeloAgainstReverse()&&!authenticated&&ehlostr!=resolvedname)
           {
             code=cfg.getReturnTempErrorOnReject()?"421":"550";
             mechanism="helo differs from resolved name";
             message=code+" Your IP hostname doesn't match your envelope hostname.";
-            #ifdef REALLY_VERBOSE_DEBUG
-            cout << "Checking " << mechanism << endl;
-            #endif //REALLY_VERBOSE_DEBUG
+	    LINF("checking " + mechanism);
           }
           else
             code="250";
@@ -208,10 +186,7 @@ void Proxy::run(string &peer_address)
           strlog.insert(0,code+" ");
 
           //log the connection
-          #ifdef REALLY_VERBOSE_DEBUG
-          cout << strlog << endl;
-          #endif //REALLY_VERBOSE_DEBUG
-          hermes_log.addMessage(LOG_INFO,strlog);
+          LINF(strlog);
 
           //if we didn't accept the email, punish spammers
           if("250"!=code)
@@ -231,21 +206,17 @@ void Proxy::run(string &peer_address)
           #ifdef HAVE_SSL
             try
             {
-              #ifdef REALLY_VERBOSE_DEBUG
-              cout << peer_address << " enabled starttls, using secure comunications!!!"  << endl;
-              #endif //REALLY_VERBOSE_DEBUG
+	      LINF("STARTTLS issued by remote, TLS enabled");
               outside.writeLine("220 You can speak now, line is secure!!");
               outside.enableSSL(true);
             }
             catch(Exception &e)
             {
-              #ifdef REALLY_VERBOSE_DEBUG
-              cout << string(e) << endl;
-              #endif //REALLY_VERBOSE_DEBUG
-              hermes_log.addMessage(LOG_DEBUG,string(e));
+              LERR(e);
             }
           #else
             outside.writeLine("454 TLS temporarily not available");
+	    LINF("STARTTLS issued by remote, TLS was not enabled because this build lacks SSL support");
           #endif //HAVE_SSL
           strtemp="";
         }
@@ -257,9 +228,6 @@ void Proxy::run(string &peer_address)
       if(inside.canRead(0.2))  //server wants to send something to client
       {
         strtemp=inside.readLine();
-        #ifdef REALLY_VERBOSE_DEBUG
-        debugLog+="s> "+strtemp+"\r\n";
-        #endif //REALLY_VERBOSE_DEBUG
         if(inside.isClosed())
           return;
         string code=strtemp.substr(0,3); //all responses by the server start with a code
@@ -319,16 +287,9 @@ void Proxy::run(string &peer_address)
   }
   catch(Exception &e)  //any exception will close both connections
   {
-    #ifdef REALLY_VERBOSE_DEBUG
-    cout << e << endl;
-    try
-    {
-      throw Exception(string(e)+debugLog+"\r\n",__FILE__,__LINE__);
-    }
-    catch(Exception &ex){}
-    #endif //REALLY_VERBOSE_DEBUG
+    LERR(e);
     if(last_state<SMTP_STATE_WAIT_FOR_DATA)
-      hermes_log.addMessage(LOG_INFO,"421 (throttling) from "+(""==from?"no-from":from)+" (ip:"+peer_address+", hostname:"+(""==resolvedname?"not-resolved":resolvedname)+", ehlo:"+(""==ehlostr?"no-ehlo":ehlostr)+") -> to "+(""==to?"no-to":to));
+      LINF("421 (probably-throttling) from "+(""==from?"no-from":from)+" (ip:"+peer_address+", hostname:"+(""==resolvedname?"not-resolved":resolvedname)+", ehlo:"+(""==ehlostr?"no-ehlo":ehlostr)+") -> to "+(""==to?"no-to":to));
     return;
   }
 }

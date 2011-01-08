@@ -55,6 +55,7 @@ class Utils
     static string strtolower(string);
     static string trim(string);
     static string inttostr(int);
+    static string ulongtostr(unsigned long);
 
     //email-related utilities
     static string getmail(string&);
@@ -80,6 +81,7 @@ class Utils
     static string errnotostrerror(int);
     static string rfc2821_date(time_t *timestamp=NULL);
     static string gethostname();
+    static void write_pid(string,pid_t);
 };
 
 #endif //UTILS_H

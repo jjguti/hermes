@@ -27,6 +27,7 @@ SSL_CTX *Socket::ssl_ctx_client=NULL;
 #endif //HAVE_SSL
 
 extern Configfile cfg;
+extern LOGGER_CLASS hermes_log;
 
 Socket::Socket():fd(-1)
 #ifdef HAVE_SSL
@@ -254,6 +255,9 @@ string Socket::readLine()
       s<<c;
   }
   while(c!=10&&!isClosed());
+
+  LDEB("r>" + s.str());
+
   return s.str();
 }
 
@@ -298,6 +302,7 @@ void Socket::writeLine(string s)
 
   s+="\r\n";
 
+  LDEB("w>"+s);
   writeBytes((void *)s.c_str(),s.length());
 }
 

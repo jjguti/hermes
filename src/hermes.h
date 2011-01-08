@@ -26,11 +26,17 @@
 #include <string>
 
 #define _(x) (x)
+#define LOG(x,y) hermes_log.addMessage(__FILE__,__LINE__,x,y)
+#define LERR(x) LOG(LOG_ERR,x)
+#define LINF(x) LOG(LOG_INFO,x)
+#define LDEB(x) LOG(LOG_DEBUG,x)
+
 
 typedef struct
 {
   int new_fd;
   std::string peer_address;
+  unsigned long connection_id;
 }new_conn_info;
 
 #endif //SMTPPROXY_H

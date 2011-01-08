@@ -19,6 +19,9 @@
  */
 #include "UnixLogger.h"
 
+extern __thread unsigned long connection_id;
+extern Configfile cfg;
+
 UnixLogger::UnixLogger()
 {
   openlog("hermes",LOG_NDELAY,LOG_MAIL);
@@ -29,7 +32,12 @@ UnixLogger::~UnixLogger()
   closelog();
 }
 
-void UnixLogger::addMessage(int loglevel,string logmessage)
+void UnixLogger::addMessage(string file,int line,int loglevel,string logmessage)
 {
-  syslog(loglevel,logmessage.c_str());
+  string message;
+
+  message=file+":"+Utils::inttostr(line)+" [" + Utils::inttostr(connection_id) + "] " + logmessage;
+  if(false==cfg.getBackground())
+    cout << message << endl;
+  syslog(loglevel,message.c_str());
 }

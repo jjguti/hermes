@@ -20,6 +20,7 @@
 #include "Utils.h"
 
 extern Configfile cfg;
+extern LOGGER_CLASS hermes_log;
 
 //--------------------
 // string functions:
@@ -37,6 +38,21 @@ string Utils::inttostr(int integer)
 {
   stringstream s;
   s << integer;
+  return s.str();
+}
+
+/**
+ * convert unsigned long to string
+ *
+ * @param number number to convert
+ *
+ * @return string the number converted to stringtype
+ *
+ */
+string Utils::ulongtostr(unsigned long number)
+{
+  stringstream s;
+  s << number;
   return s.str();
 }
 
@@ -445,27 +461,30 @@ bool Utils::listed_on_dns_lists(list<string>& dns_domains,unsigned char percenta
     {
       Socket::resolve(reversedip+dns_domain);
       times_listed++;
-      #ifdef REALLY_VERBOSE_DEBUG
-      cout << ip << " listed on " << dns_domain << endl;
-      #endif //REALLY_VERBOSE_DEBUG
+      LINF(ip + " listed on " + dns_domain);
     }
     catch(Exception &e)
     {
-      #ifdef REALLY_VERBOSE_DEBUG
-      cout << ip << " NOT listed on " << dns_domain << endl;
-      #endif //REALLY_VERBOSE_DEBUG
+      LINF(ip + " NOT listed on " + dns_domain);
     }
 
     checked_lists++;
 
     if((times_listed*100/number_of_lists)>=percentage)
+    {
+      LINF("ip " + ip + " listed on " + Utils::ulongtostr(times_listed) + " out of " + Utils::ulongtostr(checked_lists) + " checked servers, out of " + Utils::ulongtostr(number_of_lists) + ". threshold is " + Utils::ulongtostr(percentage) + "% -> return true");
       return true;
+    }
     //if we have checked a number of lists that make it impossible for this function
     //to return true, then return false
     if((checked_lists*100/number_of_lists)>100-percentage)
+    {
+      LINF("ip " + ip + " listed on " + Utils::ulongtostr(times_listed) + " out of " + Utils::ulongtostr(checked_lists) + " checked servers, out of " + Utils::ulongtostr(number_of_lists) + ". threshold is " + Utils::ulongtostr(percentage) + "% -> return false");
       return false;
+    }
   }
 
+  LINF("ip " + ip + " listed on " + Utils::ulongtostr(times_listed) + " out of " + Utils::ulongtostr(checked_lists) + " checked servers, out of " + Utils::ulongtostr(number_of_lists) + ". threshold is " + Utils::ulongtostr(percentage) + "% -> return false");
   return false;
 }
 
@@ -589,3 +608,16 @@ string Utils::gethostname()
 
   return string(buf);
 }
+
+void Utils::write_pid(string file,pid_t pid)
+{
+  FILE *f;
+
+  f=fopen(file.c_str(),"w");
+  if(NULL==f)
+    throw Exception(_("Couldn't open file ")+file+_(" to write the pidfile"),__FILE__,__LINE__);
+
+  fprintf(f,"%d\n",pid);
+  fclose(f);
+}
+

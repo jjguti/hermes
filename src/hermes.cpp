@@ -42,7 +42,6 @@ using namespace std;
 void *thread_main(void *);
 void *cleaner_thread_run(void *);
 void exit_requested(int);
-void write_pid(string,pid_t);
 
 //global var to know when we have to exit
 bool quit=false;
@@ -56,6 +55,10 @@ Configfile cfg;
 
 //our logger
 LOGGER_CLASS hermes_log;
+
+//this variable is thread-local to allow having a unique id per-thread which we can
+//print at the start of log messages
+__thread unsigned long connection_id;
 
 list<pthread_t> children;
 
@@ -106,13 +109,11 @@ main
   }
   catch(Exception &e)
   {
-    cout << string(e) << endl;
+    LERR(e);
     return -1;
   }
 
-  #ifdef REALLY_VERBOSE_DEBUG
-    unsigned long nconns=0;
-  #endif //REALLY_VERBOSE_DEBUG
+  unsigned long nconns=0;
 
   signal(SIGTERM,exit_requested);
   signal(SIGINT,exit_requested);
@@ -134,7 +135,7 @@ main
 
       if(retval<0)
       {
-        cout << _("Error forking into the background") << Utils::errnotostrerror(errno) << endl;
+        LERR(_("Error forking into the background") + Utils::errnotostrerror(errno));
         return -1;
       }
     }
@@ -143,11 +144,11 @@ main
     {
       try
       {
-        write_pid(cfg.getPidFile(),getpid());
+        Utils::write_pid(cfg.getPidFile(),getpid());
       }
       catch(Exception &e)
       {
-        hermes_log.addMessage(LOG_ERR,e);
+        LERR(e);
       }
     }
 
@@ -158,13 +159,14 @@ main
       chdir(cfg.getChroot().c_str());
       if(-1==chroot(cfg.getChroot().c_str()))
       {
-        cout << _("Couldn't chroot ") << Utils::errnotostrerror(errno) << endl;
+        LERR(_("Couldn't chroot ") + Utils::errnotostrerror(errno));
         return -1;
       }
       chdir("/");
     }
   #endif //WIN32
 
+  LINF("Starting hermes");
   try
   {
     server.init();
@@ -173,7 +175,7 @@ main
   }
   catch(Exception &e)
   {
-    cout << e << endl;
+    LERR(e);
     return -1; //couldn't bind, exit
   }
 
@@ -207,22 +209,19 @@ main
       int fd=server.accept(&peer_address);
       info.new_fd=fd;
       info.peer_address=peer_address;
+      info.connection_id=++nconns;
       pthread_mutex_lock(&info_stack_mutex);
       info_stack.push(info);
       pthread_mutex_unlock(&info_stack_mutex);
       retval=pthread_create(&thread,&thread_attr,thread_main,(void *)&info_stack);
       if(retval)
       {
-        #ifdef REALLY_VERBOSE_DEBUG
-        cout << _("Error creating thread: ") << Utils::errnotostrerror(retval) << _(". Sleeping 5 seconds before continuing...") << endl;
-        #endif //REALLY_VERBOSE_DEBUG
+	LERR(_("Error creating thread: ") + Utils::errnotostrerror(retval) + _(". Sleeping 5 seconds before continuing..."));
         sleep(5);
       }
       else
       {
-        #ifdef REALLY_VERBOSE_DEBUG
-        cout << "[ " << ++nconns << " ] " << endl;
-        #endif //REALLY_VERBOSE_DEBUG
+	LDEB("New thread created [" + Utils::ulongtostr(nconns) + "] thread_id: " + Utils::ulongtostr(thread));
         pthread_mutex_lock(&childrenlist_mutex);
         children.push_back(thread);
         pthread_mutex_unlock(&childrenlist_mutex);
@@ -234,22 +233,21 @@ main
   server.close();
 
   // wait for all threads to finish
-  #ifdef REALLY_VERBOSE_DEBUG
-  cout << "Waiting for all threads to finish" << endl;
-  #endif //REALLY_VERBOSE_DEBUG
+  LINF("Waiting for threads to finish");
   while(children.size())
   {
-    #ifdef REALLY_VERBOSE_DEBUG
-    cout << "Threads active:" << children.size() << (char)13;
-    fflush(stdout);
-    #endif //REALLY_VERBOSE_DEBUG
+    if(false==cfg.getBackground())
+    {
+      cout << "Threads active:" << children.size() << (char)13;
+      fflush(stdout);
+    }
     sleep(1);
   }
   if(cfg.getCleanDb())
     pthread_join(cleaner_thread,NULL);
-  #ifdef REALLY_VERBOSE_DEBUG
-  cout << endl;
-  #endif //REALLY_VERBOSE_DEBUG
+
+  if(false==cfg.getBackground())
+    cout << endl;
 
   #ifdef HAVE_SPF
   Spf::deinitialize();
@@ -281,7 +279,7 @@ void *cleaner_thread_run(void *)
         unsigned long spamcount;
 
         spamcount=db.cleanDB();
-        hermes_log.addMessage(LOG_DEBUG,"Cleaning database, cleaning "+Utils::inttostr(spamcount)+" blocked spams.");
+        LDEB("Cleaning database, cleaning "+Utils::inttostr(spamcount)+" blocked spams.");
         if(spamcount>0&&cfg.getSubmitStats())
         {
           try
@@ -310,12 +308,13 @@ void *cleaner_thread_run(void *)
           }
           catch(Exception &e)
           {
-            hermes_log.addMessage(LOG_DEBUG,"Exception sending stats: "+string(e));
+            LDEB("Exception sending stats: "+string(e));
           }
         }
         next_run+=3600;
       }
-      #ifdef REALLY_VERBOSE_DEBUG
+      if(false==cfg.getBackground())
+      {
         if(!(now%10)) //echo info each 10 seconds
         {
           stringstream ss;
@@ -328,16 +327,14 @@ void *cleaner_thread_run(void *)
           ss << endl;
           cout << ss.str();
         }
-      #endif //REALLY_VERBOSE_DEBUG
+      }
       sleep(1);
     }
     db.close();
   }
   catch(Exception &e)
   {
-    #ifdef REALLY_VERBOSE_DEBUG
-    cout << e << endl;
-    #endif //REALLY_VERBOSE_DEBUG
+    LERR(e);
   }
   return NULL;
 }
@@ -363,6 +360,7 @@ void *thread_main(void *info_stack)
     ((stack<new_conn_info>*)info_stack)->pop();
     pthread_mutex_unlock(&info_stack_mutex);
 
+    connection_id=peerinfo.connection_id;
     client.setFD(peerinfo.new_fd);
     p.setOutside(client);
     p.run(peerinfo.peer_address);
@@ -370,10 +368,8 @@ void *thread_main(void *info_stack)
   }
   catch(Exception &e)
   {
-    #ifdef REALLY_VERBOSE_DEBUG
-    cout << e << endl;
-    #endif //REALLY_VERBOSE_DEBUG
-    hermes_log.addMessage(LOG_DEBUG,e);
+    if(false==cfg.getBackground())
+      LDEB(e);
   }
   return NULL;
 }
@@ -383,24 +379,11 @@ void exit_requested(int)
   if(!quit)
   {
     quit=true;
-    #ifdef REALLY_VERBOSE_DEBUG
-    cout << "Hit control+c again to force-quit" << endl;
-    #endif //REALLY_VERBOSE_DEBUG
+    if(false==cfg.getBackground())
+      cout << "Hit control+c again to force-quit" << endl;
   }
   else
     exit(-1);
-}
-
-void write_pid(string file,pid_t pid)
-{
-  FILE *f;
-
-  f=fopen(file.c_str(),"w");
-  if(NULL==f)
-    throw Exception(_("Couldn't open file ")+file+_(" to write the pidfile"),__FILE__,__LINE__);
-
-  fprintf(f,"%d\n",pid);
-  fclose(f);
 }
 
 #ifdef WIN32

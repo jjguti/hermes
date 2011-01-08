@@ -36,7 +36,7 @@ void Configfile::parse(string file)
   char line[255];
   int equalpos;
 
-  hermes_log.addMessage(LOG_INFO,"parsing "+Utils::get_canonical_filename(file)+" configuration file");
+  LINF("parsing "+Utils::get_canonical_filename(file)+" configuration file");
   f.open(file.c_str(),ios::in);
   while(!f.eof())
   {
@@ -47,10 +47,9 @@ void Configfile::parse(string file)
       equalpos=l.find("=");
       string option=Utils::trim(l.substr(0,equalpos));
       string value=Utils::trim(l.substr(equalpos+1));
-      #ifdef REALLY_VERBOSE_DEBUG
-        cout << l << endl;
-        cout << option << "->" << value << endl;
-      #endif //REALLY_VERBOSE_DEBUG
+      //if(false==cfg.getBackground())
+      //  cout << option << " -> " << value << endl;
+
       //this is a bit of a hack, but simplifies a lot this function
       #define PARSE_INT(x,y) if(x==option) y=Configfile::parseAsInt(value); else
       #define PARSE_BOOL(x,y) if(x==option) y=Configfile::parseAsBool(value); else

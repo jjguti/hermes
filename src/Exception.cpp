@@ -25,9 +25,6 @@ extern LOGGER_CLASS hermes_log;
 Exception::Exception(string p_error,string p_file,unsigned p_line)
 {
   error=p_error;
-  #ifdef REALLY_VERBOSE_DEBUG
-  hermes_log.addMessage(LOG_ERR,p_error);
-  #endif //REALLY_VERBOSE_DEBUG
   #ifdef NOTIFY_EXCEPTIONS
   if(cfg.getNotifyTo()!="")
   {
@@ -37,7 +34,7 @@ Exception::Exception(string p_error,string p_file,unsigned p_line)
     }
     catch(NotifyException &e)
     {
-      cout << string(e) << endl;
+      LERR(e);
     }
   }
   #endif //NOTIFY_EXCEPTIONS
