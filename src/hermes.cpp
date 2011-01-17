@@ -234,6 +234,7 @@ main
 
   // wait for all threads to finish
   LINF("Waiting for threads to finish");
+  #ifndef WIN32
   while(children.size())
   {
     if(false==cfg.getBackground())
@@ -243,11 +244,14 @@ main
     }
     sleep(1);
   }
+  #endif //WIN32
   if(cfg.getCleanDb())
     pthread_join(cleaner_thread,NULL);
 
+  #ifndef WIN32
   if(false==cfg.getBackground())
     cout << endl;
+  #endif //WIN32
 
   #ifdef HAVE_SPF
   Spf::deinitialize();
@@ -320,6 +324,7 @@ void *cleaner_thread_run(void *)
         }
         next_run+=3600;
       }
+      #ifndef WIN32
       if(false==cfg.getBackground())
       {
         if(!(now%10)) //echo info each 10 seconds
@@ -335,6 +340,7 @@ void *cleaner_thread_run(void *)
           cout << ss.str();
         }
       }
+      #endif //WIN32
       sleep(1);
     }
     db.close();
@@ -375,8 +381,7 @@ void *thread_main(void *info_stack)
   }
   catch(Exception &e)
   {
-    if(false==cfg.getBackground())
-      LDEB(e);
+    LDEB(e);
   }
   return NULL;
 }
@@ -386,8 +391,10 @@ void exit_requested(int)
   if(!quit)
   {
     quit=true;
+    #ifndef WIN32
     if(false==cfg.getBackground())
       cout << "Hit control+c again to force-quit" << endl;
+    #endif //WIN32
   }
   else
     exit(-1);
