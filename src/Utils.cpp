@@ -367,7 +367,7 @@ string Utils::get_canonical_filename(string file)
 {
   char buffer[MAX_PATH];
   
-  GetFullPathName(file.c_str(),sizeof(path),path,NULL);
+  GetFullPathName(file.c_str(),sizeof(buffer),buffer,NULL);
 
   return string(buffer);
 }
