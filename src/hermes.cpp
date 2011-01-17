@@ -95,7 +95,9 @@ main
 
   #ifdef HAVE_SSL
     CRYPTO_set_locking_callback(ssl_locking_function);
+    #ifndef WIN32 //getpid() returns different values for threads on windows, therefor this is not needed
     CRYPTO_set_id_callback(pthread_self);
+    #endif //WIN32
   #endif //HAVE_SSL
   try
   {
