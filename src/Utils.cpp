@@ -362,6 +362,16 @@ bool Utils::file_exists(string file)
   }
 }
 
+#ifdef WIN32
+string Utils::get_canonical_filename(string file)
+{
+  char buffer[MAX_PATH];
+  
+  GetFullPathName(file.c_str(),sizeof(path),path,NULL);
+
+  return string(buffer);
+}
+#else
 string Utils::get_canonical_filename(string file)
 {
   char *buffer=NULL;
@@ -373,6 +383,7 @@ string Utils::get_canonical_filename(string file)
 
   return result;
 }
+#endif //WIN32
 /**
  * whether a directory is accesible by current process/user
  *
