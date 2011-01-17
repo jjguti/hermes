@@ -52,7 +52,7 @@ class FileLogger: public Logger
   public:
     FileLogger();
     ~FileLogger();
-    void addMessage(int,string);
+    void addMessage(string,int,int,string);
 };
 
 #endif //FILELOGGER_H

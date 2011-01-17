@@ -67,7 +67,7 @@ void FileLogger::syncBufferToDisk()
   }
 }
 
-void FileLogger::addMessage(int loglevel,string logmessage)
+void FileLogger::addMessage(string file,int line,int loglevel,string logmessage)
 {
   pthread_mutex_lock(&mutex);
   if(cfg.getLogRotationFrequency()>0&&last_rotation+(cfg.getLogRotationFrequency()*60)<time(NULL))
@@ -76,6 +76,7 @@ void FileLogger::addMessage(int loglevel,string logmessage)
     cout << "Rotating log to file " << getProcessedRotateFilename() << " at " << time(NULL) << " with a last rotation of " << last_rotation << endl;
     #endif //REALLY_VERBOSE_DEBUG
     rotateLog();
+    addMessage(__FILE__,__LINE__,LOG_DEBUG,"Rotated log to file " + getProcessedRotateFilename() + " at " + Utils::ulongtostr(time(NULL)) + " with a last rotation of " + Utils::ulongtostr(last_rotation));
   }
   try
   {
@@ -85,7 +86,7 @@ void FileLogger::addMessage(int loglevel,string logmessage)
     {
       openFile(cfg.getFileLoggerFilename());
       if(NULL!=f)
-        fprintf(f,"%s: %s\n",Utils::rfc2821_date().c_str(),logmessage.c_str());
+        fprintf(f,"%s: %s:%ld %s\n",Utils::rfc2821_date().c_str(),file.c_str(),long(line),logmessage.c_str());
     }
     if(++linecount>30)
     {
