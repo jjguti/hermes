@@ -221,7 +221,11 @@ main
       }
       else
       {
+	#ifdef WIN32
+	LDEB("New thread created [" + Utils::ulongtostr(nconns) + "] thread_id: " + Utils::ulongtostr(thread.t) + ":" + Utils::ulongtostr(thread.x));
+	#else
 	LDEB("New thread created [" + Utils::ulongtostr(nconns) + "] thread_id: " + Utils::ulongtostr(thread));
+	#endif //WIN32
         pthread_mutex_lock(&childrenlist_mutex);
         children.push_back(nconns);
         pthread_mutex_unlock(&childrenlist_mutex);
