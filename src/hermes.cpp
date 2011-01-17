@@ -224,7 +224,7 @@ main
       else
       {
 	#ifdef WIN32
-	LDEB("New thread created [" + Utils::ulongtostr(nconns) + "] thread_id: " + Utils::ulongtostr(thread.p) + ":" + Utils::ulongtostr(thread.x));
+	LDEB("New thread created [" + Utils::ulongtostr(nconns) + "] thread_id: " + Utils::ulongtostr((unsigned long)thread.p) + ":" + Utils::ulongtostr(thread.x));
 	#else
 	LDEB("New thread created [" + Utils::ulongtostr(nconns) + "] thread_id: " + Utils::ulongtostr(thread));
 	#endif //WIN32
