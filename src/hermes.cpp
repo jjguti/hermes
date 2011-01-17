@@ -352,10 +352,10 @@ void *cleaner_thread_run(void *)
   return NULL;
 }
 
-void remove_thread_from_list(pthread_t thread)
+void remove_child_from_childlist(unsigned long child_id)
 {
   pthread_mutex_lock(&childrenlist_mutex);
-  children.remove(thread);
+  children.remove(child_id);
   pthread_mutex_unlock(&childrenlist_mutex);
 }
 
@@ -377,7 +377,7 @@ void *thread_main(void *info_stack)
     client.setFD(peerinfo.new_fd);
     p.setOutside(client);
     p.run(peerinfo.peer_address);
-    remove_thread_from_list(connection_id);
+    remove_child_from_childlist(connection_id);
   }
   catch(Exception &e)
   {
