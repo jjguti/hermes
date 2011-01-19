@@ -20,6 +20,7 @@
 #include "FileLogger.h"
 
 extern Configfile cfg;
+extern __thread unsigned long connection_id;
 
 FileLogger::FileLogger():linecount(0)
 {
@@ -86,7 +87,7 @@ void FileLogger::addMessage(string file,int line,int loglevel,string logmessage)
     {
       openFile(cfg.getFileLoggerFilename());
       if(NULL!=f)
-        fprintf(f,"%s: %s:%ld %s\n",Utils::rfc2821_date().c_str(),file.c_str(),long(line),logmessage.c_str());
+        fprintf(f,"%s: %s:%ld [%ld] %s\n",Utils::rfc2821_date().c_str(),file.c_str(),long(line),connection_id,logmessage.c_str());
     }
     if(++linecount>30)
     {
