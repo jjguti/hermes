@@ -288,6 +288,11 @@ void *cleaner_thread_run(void *)
       {
         unsigned long spamcount;
 
+        next_run=now+3600; //if we just add 3600 like before, then if 
+	//time changes during execution of hermes this will run
+	//every few seconds instead of every hour
+
+
         try
         {
           spamcount=db.cleanDB();
@@ -328,7 +333,6 @@ void *cleaner_thread_run(void *)
             LDEB("Exception sending stats: "+string(e));
           }
         }
-        next_run+=3600;
       }
       #ifndef WIN32
       if(false==cfg.getBackground())
