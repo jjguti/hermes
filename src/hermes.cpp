@@ -168,7 +168,7 @@ main
     }
   #endif //WIN32
 
-  LINF("Starting hermes");
+  LINF("Starting hermes with pid "+Utils::inttostr(getpid()));
   try
   {
     server.init();
