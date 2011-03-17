@@ -150,6 +150,12 @@ string,submit_stats_username,"anonymous"
 * password
 string,submit_stats_password,"anonymous"
 
+* log level:
+* 0: log only errors
+* 1: log errors and information (default)
+* 2: debug (passwords might be written in plaintext with this option, so use with care)
+int,log_level,1
+
 #if LOGGER_CLASS==FileLogger
 * if you are using the filelogger, which file to log to.
 string,file_logger_filename,"hermes.log"

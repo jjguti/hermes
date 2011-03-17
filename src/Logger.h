@@ -39,9 +39,9 @@ class Logger
 #endif //WIN32
 
 #ifndef LOG_INFO
-#define LOG_INFO 0
-#define LOG_DEBUG 1
-#define LOG_ERR 2
+#define LOG_ERR 0
+#define LOG_INFO 1
+#define LOG_DEBUG 2
 #endif //LOG_INFO
 #include "FileLogger.h"
 #include "NullLogger.h"

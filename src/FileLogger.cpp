@@ -70,12 +70,12 @@ void FileLogger::syncBufferToDisk()
 
 void FileLogger::addMessage(string file,int line,int loglevel,string logmessage)
 {
+
+  if(loglevel>cfg.getLogLevel()) return;
+
   pthread_mutex_lock(&mutex);
   if(cfg.getLogRotationFrequency()>0&&last_rotation+(cfg.getLogRotationFrequency()*60)<time(NULL))
   {
-    #ifdef REALLY_VERBOSE_DEBUG
-    cout << "Rotating log to file " << getProcessedRotateFilename() << " at " << time(NULL) << " with a last rotation of " << last_rotation << endl;
-    #endif //REALLY_VERBOSE_DEBUG
     rotateLog();
     addMessage(__FILE__,__LINE__,LOG_DEBUG,"Rotated log to file " + getProcessedRotateFilename() + " at " + Utils::ulongtostr(time(NULL)) + " with a last rotation of " + Utils::ulongtostr(last_rotation));
   }
