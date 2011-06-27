@@ -488,7 +488,7 @@ bool Utils::listed_on_dns_lists(list<string>& dns_domains,unsigned char percenta
     }
     //if we have checked a number of lists that make it impossible for this function
     //to return true, then return false
-    if((checked_lists*100/number_of_lists)>100-percentage)
+    if(((times_listed+(number_of_lists-checked_lists))*100/number_of_lists)>=percentage)
     {
       LINF("ip " + ip + " listed on " + Utils::ulongtostr(times_listed) + " out of " + Utils::ulongtostr(checked_lists) + " checked servers, out of " + Utils::ulongtostr(number_of_lists) + ". threshold is " + Utils::ulongtostr(percentage) + "% -> return false");
       return false;
