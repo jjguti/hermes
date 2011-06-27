@@ -27,9 +27,9 @@
 
 #define _(x) (x)
 #define LOG(x,y) hermes_log.addMessage(__FILE__,__LINE__,x,y)
-#define LERR(x) LOG(LOG_ERR,x)
-#define LINF(x) LOG(LOG_INFO,x)
-#define LDEB(x) LOG(LOG_DEBUG,x)
+#define LERR(x) LOG(HERMES_LOG_ERR,x)
+#define LINF(x) LOG(HERMES_LOG_INFO,x)
+#define LDEB(x) LOG(HERMES_LOG_DEBUG,x)
 
 
 typedef struct

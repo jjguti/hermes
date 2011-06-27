@@ -38,11 +38,11 @@ class Logger
 #include "UnixLogger.h"
 #endif //WIN32
 
-#ifndef LOG_INFO
-#define LOG_ERR 0
-#define LOG_INFO 1
-#define LOG_DEBUG 2
-#endif //LOG_INFO
+#ifndef HERMES_LOG_INFO
+#define HERMES_LOG_ERR 0
+#define HERMES_LOG_INFO 1
+#define HERMES_LOG_DEBUG 2
+#endif //HERMES_LOG_INFO
 #include "FileLogger.h"
 #include "NullLogger.h"
 

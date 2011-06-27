@@ -77,7 +77,7 @@ void FileLogger::addMessage(string file,int line,int loglevel,string logmessage)
   if(cfg.getLogRotationFrequency()>0&&last_rotation+(cfg.getLogRotationFrequency()*60)<time(NULL))
   {
     rotateLog();
-    addMessage(__FILE__,__LINE__,LOG_DEBUG,"Rotated log to file " + getProcessedRotateFilename() + " at " + Utils::ulongtostr(time(NULL)) + " with a last rotation of " + Utils::ulongtostr(last_rotation));
+    addMessage(__FILE__,__LINE__,HERMES_LOG_DEBUG,"Rotated log to file " + getProcessedRotateFilename() + " at " + Utils::ulongtostr(time(NULL)) + " with a last rotation of " + Utils::ulongtostr(last_rotation));
   }
   try
   {
