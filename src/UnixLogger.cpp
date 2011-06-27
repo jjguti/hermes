@@ -35,12 +35,19 @@ UnixLogger::~UnixLogger()
 void UnixLogger::addMessage(string file,int line,int loglevel,string logmessage)
 {
   string message;
+  int sloglevel; //the syslog loglevel is not the same as the hermes log level value
 
   if(loglevel<=cfg.getLogLevel())
   {
+    switch(loglevel)
+    {
+      case HERMES_LOG_INFO: sloglevel=LOG_INFO;break;
+      case HERMES_LOG_ERR: sloglevel=LOG_ERR;break;
+      case HERMES_LOG_DEBUG: sloglevel=LOG_DEBUG;
+    }
     message=file+":"+Utils::inttostr(line)+" [" + Utils::inttostr(connection_id) + "] " + logmessage;
     if(false==cfg.getBackground())
       cout << message << endl;
-    syslog(loglevel,message.c_str());
+    syslog(sloglevel,message.c_str());
   }
 }
