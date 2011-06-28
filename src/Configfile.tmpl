@@ -107,6 +107,12 @@ list,dns_whitelist_domains,""
 * as listed, just define dns_whitelist_percentage as 50 (50%).
 int,dns_whitelist_percentage,100
 
+* if this is enabled, email will get tagged with a header "X-Hermes-Status: {white,black}listed"
+* that way, your bayesian filter can learn from this automatically
+* NOTE: if this is enabled, it will accept blacklisted emails and it will be up to you to filter
+* them out, for example through procmail
+bool,add_status_header_if_dns_listed,false
+
 * time to delay the initial SMTP banner
 int,banner_delay_time,5
 

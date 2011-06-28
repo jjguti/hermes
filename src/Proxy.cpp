@@ -52,11 +52,13 @@ void Proxy::run(string &peer_address)
     bool authenticated=false; //we start with a non-authenticated connection
     bool esmtp=false;
     string strtemp;
+    string hermes_status="unknown";
 
     //check whitelist
     if(!cfg.getDnsWhitelistDomains().empty()&&Utils::listed_on_dns_lists(cfg.getDnsWhitelistDomains(),cfg.getDnsWhitelistPercentage(),peer_address))
     {
       authenticated=true;
+      hermes_status="whitelisted";
       if(true==cfg.getWhitelistedDisablesEverything())
         throttled=false;
     }
@@ -159,7 +161,11 @@ void Proxy::run(string &peer_address)
           //check rbl
           else if(!cfg.getDnsBlacklistDomains().empty()&&!authenticated&&Utils::listed_on_dns_lists(cfg.getDnsBlacklistDomains(),cfg.getDnsBlacklistPercentage(),peer_address))
           {
-            code=cfg.getReturnTempErrorOnReject()?"421":"550";
+            hermes_status="blacklisted";
+            if(cfg.getAddStatusHeaderIfDnsListed())
+              code="250";
+            else
+              code=cfg.getReturnTempErrorOnReject()?"421":"550";
             mechanism="dnsbl";
             message=code+" You are listed on some DNS blacklists. Get delisted before trying to send us email.";
 	    LINF("checking " + mechanism);
@@ -246,6 +252,8 @@ void Proxy::run(string &peer_address)
             inside.writeLine("  by "+Utils::gethostname()+" with "+(esmtp?"ESTMP":"SMTP")+" via TCP; "+Utils::rfc2821_date());
             inside.writeLine("X-Anti-Spam-Proxy: Proxied by Hermes [www.hermes-project.com]");
           }
+          if(cfg.getAddStatusHeaderIfDnsListed())
+            inside.writeLine("X-Hermes-Status: "+hermes_status);
           do
           {
             bytes_read=outside.readBytes(buffer,sizeof(buffer)-1);
