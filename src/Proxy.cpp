@@ -162,7 +162,7 @@ void Proxy::run(string &peer_address)
           else if(!cfg.getDnsBlacklistDomains().empty()&&!authenticated&&Utils::listed_on_dns_lists(cfg.getDnsBlacklistDomains(),cfg.getDnsBlacklistPercentage(),peer_address))
           {
             hermes_status="blacklisted";
-            if(cfg.getAddStatusHeaderIfDnsListed())
+            if(cfg.getAddStatusHeader())
               code="250";
             else
               code=cfg.getReturnTempErrorOnReject()?"421":"550";
@@ -251,9 +251,9 @@ void Proxy::run(string &peer_address)
             inside.writeLine("Received: from "+ehlostr+" ("+peer_address+")");
             inside.writeLine("  by "+Utils::gethostname()+" with "+(esmtp?"ESTMP":"SMTP")+" via TCP; "+Utils::rfc2821_date());
             inside.writeLine("X-Anti-Spam-Proxy: Proxied by Hermes [www.hermes-project.com]");
+            if(cfg.getAddStatusHeader())
+              inside.writeLine("X-Hermes-Status: "+hermes_status);
           }
-          if(cfg.getAddStatusHeaderIfDnsListed())
-            inside.writeLine("X-Hermes-Status: "+hermes_status);
           do
           {
             bytes_read=outside.readBytes(buffer,sizeof(buffer)-1);
@@ -275,6 +275,7 @@ void Proxy::run(string &peer_address)
         {
           throttled=false;
           authenticated=true;
+          hermes_status="authenticated";
         }
         if("250-pipelining"==Utils::strtolower(strtemp)||"250-chunking"==Utils::strtolower(strtemp)) //this solves our problems with pipelining-enabled servers
           strtemp="";
