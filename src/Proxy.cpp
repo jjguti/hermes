@@ -139,15 +139,19 @@ void Proxy::run(string &peer_address)
             code="421";
             mechanism="greylist";
             message=code+" Greylisted!! Please try again in a few minutes.";
-	    LINF("checking " + mechanism);
+            LINF("checking " + mechanism);
           }
           #ifdef HAVE_SPF
           else if(cfg.getQuerySpf()&&!authenticated&&!spf_checker.query(peer_address,ehlostr,from))
           {
-            code=cfg.getReturnTempErrorOnReject()?"421":"550";
+            hermes_status="spf-failed";
+            if(cfg.getAddStatusHeader())
+              code="250";
+            else
+              code=cfg.getReturnTempErrorOnReject()?"421":"550";
             mechanism="spf";
             message=code+" You do not seem to be allowed to send email for that particular domain.";
-	    LINF("checking " + mechanism);
+            LINF("checking " + mechanism);
           }
           #endif //HAVE_SPF
           //check blacklist
@@ -156,7 +160,7 @@ void Proxy::run(string &peer_address)
             code=cfg.getReturnTempErrorOnReject()?"421":"550";
             mechanism="allowed-domain-per-ip";
             message=code+" You do not seem to be allowed to send email to that particular domain from that address.";
-	    LINF("checking " + mechanism);
+            LINF("checking " + mechanism);
           }
           //check rbl
           else if(!cfg.getDnsBlacklistDomains().empty()&&!authenticated&&Utils::listed_on_dns_lists(cfg.getDnsBlacklistDomains(),cfg.getDnsBlacklistPercentage(),peer_address))
@@ -168,21 +172,21 @@ void Proxy::run(string &peer_address)
               code=cfg.getReturnTempErrorOnReject()?"421":"550";
             mechanism="dnsbl";
             message=code+" You are listed on some DNS blacklists. Get delisted before trying to send us email.";
-	    LINF("checking " + mechanism);
+            LINF("checking " + mechanism);
           }
           else if(cfg.getRejectNoReverseResolution()&&!authenticated&&""==resolvedname)
           {
             code=cfg.getReturnTempErrorOnReject()?"421":"550";
             mechanism="no reverse resolution";
             message=code+" Your IP address does not resolve to a hostname.";
-	    LINF("checking " + mechanism);
+            LINF("checking " + mechanism);
           }
           else if(cfg.getCheckHeloAgainstReverse()&&!authenticated&&ehlostr!=resolvedname)
           {
             code=cfg.getReturnTempErrorOnReject()?"421":"550";
             mechanism="helo differs from resolved name";
             message=code+" Your IP hostname doesn't match your envelope hostname.";
-	    LINF("checking " + mechanism);
+            LINF("checking " + mechanism);
           }
           else
             code="250";
