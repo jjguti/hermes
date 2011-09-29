@@ -159,6 +159,8 @@ Socket::~Socket()
  */
 void Socket::enableSSL(bool server)
 {
+  int retval;
+
   if(server)
     ssl=SSL_new(ssl_ctx_server);
   else
@@ -172,9 +174,13 @@ void Socket::enableSSL(bool server)
     throw Exception(_("Error creating ssl structure"),__FILE__,__LINE__);
 
   if(server)
-    SSL_accept(ssl);
+    retval=SSL_accept(ssl);
   else
-    SSL_connect(ssl);
+    retval=SSL_connect(ssl);
+
+  //SSL_accept and SSL_connect have the same semantics so we handle them together
+  if(1!=retval)
+    throw Exception(_("Error enabling SSL on the socket"),__FILE__,__LINE__);
 }
 #endif //HAVE_SSL
 

@@ -216,17 +216,19 @@ void Proxy::run(string &peer_address)
           #ifdef HAVE_SSL
             try
             {
-	      LINF("STARTTLS issued by remote, TLS enabled");
-              outside.writeLine("220 You can speak now, line is secure!!");
               outside.enableSSL(true);
+              LINF("STARTTLS issued by remote, TLS enabled");
+              outside.writeLine("220 You can speak now, line is secure!!");
             }
             catch(Exception &e)
             {
+              LINF("STARTTLS issued by remote, but enableSSL failed!");
               LERR(e);
+              outside.writeLine("454 Tried to enable SSL but failed");
             }
           #else
             outside.writeLine("454 TLS temporarily not available");
-	    LINF("STARTTLS issued by remote, TLS was not enabled because this build lacks SSL support");
+            LINF("STARTTLS issued by remote, TLS was not enabled because this build lacks SSL support");
           #endif //HAVE_SSL
           strtemp="";
         }
