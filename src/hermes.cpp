@@ -119,6 +119,7 @@ main
 
   signal(SIGTERM,exit_requested);
   signal(SIGINT,exit_requested);
+  signal(SIGCHLD,SIG_IGN);
 
   //we have to create the server socket BEFORE chrooting, because if we don't,
   //SSL cannot initialize because it's missing libz
