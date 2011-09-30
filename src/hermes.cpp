@@ -288,7 +288,7 @@ void *cleaner_thread_run(void *)
       sched_yield();
       if(now>next_run)
       {
-        unsigned long spamcount;
+        unsigned long spamcount=0;
 
         next_run=now+3600; //if we just add 3600 like before, then if 
 	//time changes during execution of hermes this will run
@@ -298,12 +298,12 @@ void *cleaner_thread_run(void *)
         try
         {
           spamcount=db.cleanDB();
+          LDEB("Cleaning database, cleaning "+Utils::inttostr(spamcount)+" blocked spams.");
         }
         catch(Exception &e)
         {
           LERR("Error cleaning the database: " + string(e));
         }
-        LDEB("Cleaning database, cleaning "+Utils::inttostr(spamcount)+" blocked spams.");
         if(spamcount>0&&cfg.getSubmitStats())
         {
           try
