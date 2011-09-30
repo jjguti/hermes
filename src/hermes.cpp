@@ -220,16 +220,16 @@ main
       retval=pthread_create(&thread,&thread_attr,thread_main,(void *)&info_stack);
       if(retval)
       {
-	LERR(_("Error creating thread: ") + Utils::errnotostrerror(retval) + _(". Sleeping 5 seconds before continuing..."));
+        LERR(_("Error creating thread: ") + Utils::errnotostrerror(retval) + _(". Sleeping 5 seconds before continuing..."));
         sleep(5);
       }
       else
       {
-	#ifdef WIN32
-	LDEB("New thread created [" + Utils::ulongtostr(nconns) + "] thread_id: " + Utils::ulongtostr((unsigned long)thread.p) + ":" + Utils::ulongtostr(thread.x));
-	#else
-	LDEB("New thread created [" + Utils::ulongtostr(nconns) + "] thread_id: " + Utils::ulongtostr(thread));
-	#endif //WIN32
+        #ifdef WIN32
+        LDEB("New thread created [" + Utils::ulongtostr(nconns) + "] thread_id: " + Utils::ulongtostr((unsigned long)thread.p) + ":" + Utils::ulongtostr(thread.x));
+        #else
+        LDEB("New thread created [" + Utils::ulongtostr(nconns) + "] thread_id: " + Utils::ulongtostr(thread));
+        #endif //WIN32
         pthread_mutex_lock(&childrenlist_mutex);
         children.push_back(nconns);
         pthread_mutex_unlock(&childrenlist_mutex);
@@ -291,9 +291,8 @@ void *cleaner_thread_run(void *)
         unsigned long spamcount=0;
 
         next_run=now+3600; //if we just add 3600 like before, then if 
-	//time changes during execution of hermes this will run
-	//every few seconds instead of every hour
-
+        //time changes during execution of hermes this will run
+        //every few seconds instead of every hour
 
         try
         {
