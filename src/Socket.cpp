@@ -169,6 +169,9 @@ void Socket::prepareSSL(bool server)
 
   if(1!=SSL_set_fd(ssl,fd))
     throw Exception(_("Error setting FD"),__FILE__,__LINE__);
+
+  if(0==RAND_status())
+    throw Exception(_("PRNG has not enough data. Are you missing /dev/[u]random?"),__FILE__,__LINE__);
 }
 
 /**

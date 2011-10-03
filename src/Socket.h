@@ -40,6 +40,7 @@
 #include <errno.h>
 #ifdef HAVE_SSL
 #include <openssl/ssl.h>
+#include <openssl/rand.h>
 #endif //HAVE_SSL
 
 //this is a bit of a hack
