@@ -165,22 +165,21 @@ void Socket::enableSSL(bool server)
     ssl=SSL_new(ssl_ctx_server);
   else
     ssl=SSL_new(ssl_ctx_client);
-  if(ssl!=NULL)
-  {
-    SSL_set_fd(ssl,fd);
-    ssl_enabled=true;
-  }
-  else
+
+  if(NULL==ssl)
     throw Exception(_("Error creating ssl structure"),__FILE__,__LINE__);
 
-  if(server)
-    retval=SSL_accept(ssl);
-  else
-    retval=SSL_connect(ssl);
+  if(1!=SSL_set_fd(ssl,fd))
+    throw Exception(_("Error setting FD"),__FILE__,__LINE__);
+
+  retval=server? SSL_accept(ssl) : SSL_connect(ssl);
 
   //SSL_accept and SSL_connect have the same semantics so we handle them together
   if(1!=retval)
     throw Exception(_("Error enabling SSL on the socket"),__FILE__,__LINE__);
+
+  //only set ssl_enabled if we have suceeded with everything
+  ssl_enabled=true;
 }
 #endif //HAVE_SSL
 
