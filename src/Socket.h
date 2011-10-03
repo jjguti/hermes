@@ -74,7 +74,8 @@ class Socket
     Socket();
     ~Socket();
     #ifdef HAVE_SSL
-    void enableSSL(bool);
+    void prepareSSL(bool);
+    void startSSL(bool);
     #endif //HAVE_SSL
     void setFD(int);
     bool canRead(float);

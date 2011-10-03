@@ -153,14 +153,12 @@ Socket::~Socket()
 
 #ifdef HAVE_SSL
 /**
- * enable ssl on the socket
+ * prepare ssl on the socket
  *
  * @param server whether to enable server ssl or client ssl
  */
-void Socket::enableSSL(bool server)
+void Socket::prepareSSL(bool server)
 {
-  int retval;
-
   if(server)
     ssl=SSL_new(ssl_ctx_server);
   else
@@ -171,12 +169,22 @@ void Socket::enableSSL(bool server)
 
   if(1!=SSL_set_fd(ssl,fd))
     throw Exception(_("Error setting FD"),__FILE__,__LINE__);
+}
+
+/**
+ * actually do the ssl handshake and start receiving encoded
+ *
+ * @param server whether to enable server ssl or client ssl
+ */
+void Socket::startSSL(bool server)
+{
+  int retval;
 
   retval=server? SSL_accept(ssl) : SSL_connect(ssl);
 
   //SSL_accept and SSL_connect have the same semantics so we handle them together
   if(1!=retval)
-    throw Exception(_("Error enabling SSL on the socket"),__FILE__,__LINE__);
+    throw Exception(_("Error doing SSL handshake on the socket"),__FILE__,__LINE__);
 
   //only set ssl_enabled if we have suceeded with everything
   ssl_enabled=true;

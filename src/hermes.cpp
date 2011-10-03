@@ -316,7 +316,8 @@ void *cleaner_thread_run(void *)
             if(cfg.getSubmitStatsSsl())
             {
               s.writeLine("ssl");
-              s.enableSSL(false);
+              s.prepareSSL(false);
+              s.startSSL(false);
             }
             else
             #endif //HAVE_SSL

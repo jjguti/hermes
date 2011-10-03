@@ -86,9 +86,15 @@ void Proxy::run(string &peer_address)
     inside.connect(cfg.getServerHost(),cfg.getServerPort());
     #ifdef HAVE_SSL
       if(cfg.getOutgoingSsl())
-        inside.enableSSL(false);
+      {
+        inside.prepareSSL(false);
+        inside.startSSL(false);
+      }
       if(cfg.getIncomingSsl())
-        outside.enableSSL(true);
+      {
+        outside.prepareSSL(true);
+        outside.startSSL(true);
+      }
     #endif //HAVE_SSL
 
     while(!outside.isClosed()&&!inside.isClosed())
@@ -216,9 +222,10 @@ void Proxy::run(string &peer_address)
           #ifdef HAVE_SSL
             try
             {
-              outside.enableSSL(true);
+              outside.prepareSSL(true);
               LINF("STARTTLS issued by remote, TLS enabled");
               outside.writeLine("220 You can speak now, line is secure!!");
+              outside.startSSL(true);
             }
             catch(Exception &e)
             {
