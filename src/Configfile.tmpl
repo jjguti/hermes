@@ -80,6 +80,11 @@ bool,throttle,true
 * don't set this too high (more than 3), as that will drop MANY connections
 int,throttling_time,1
 
+* number of unimplemented responses allowed
+* this is the total number of "503 Unimplemented" responses allowed from the server
+* -1 = unlimited
+int,number_of_unimplemented_commands_allowed,-1
+
 * whether we should check if there is data before we send the SMTP banner.
 * if there is data the email is almost certainly spam.
 bool,allow_data_before_banner,false

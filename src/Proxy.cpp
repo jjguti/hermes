@@ -45,6 +45,7 @@ void Proxy::run(string &peer_address)
   string ehlostr="";
   string resolvedname="";
   unsigned char last_state=SMTP_STATE_WAIT_FOR_HELO;
+  long unimplemented_requests=0;
 
   try
   {
@@ -299,6 +300,20 @@ void Proxy::run(string &peer_address)
         //or to not advertise it as the last capability.
         if("250 pipelining"==Utils::strtolower(strtemp)||"250 chunking"==Utils::strtolower(strtemp))
           strtemp="250 x-noextension";
+	
+	//try to annoy spammers who send us too many senseless commands by delaying their connection a lot
+        if("502"==code) //502 unimplemented -> count them, if bigger than a certain number, terminate connection
+        {
+          if(cfg.getNumberOfUnimplementedCommandsAllowed()!=-1&&++unimplemented_requests>cfg.getNumberOfUnimplementedCommandsAllowed())
+          {
+            inside.writeLine("QUIT");
+            inside.close(); //close the socket now and leave server alone
+            sleep(60);
+            outside.writeLine("502 Too many unimplemented commands, closing connection");
+            return;
+          }
+        }
+
         if(strtemp.length())
           outside.writeLine(strtemp);
       }
