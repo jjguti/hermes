@@ -18,6 +18,7 @@
  * @author Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
  */
 #include "Socket.h"
+#include <unistd.h>
 
 int Socket::created_sockets=0;
 

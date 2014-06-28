@@ -19,6 +19,8 @@
  */
 #include "Configfile.h"
 
+#include <unistd.h>
+
 extern LOGGER_CLASS hermes_log;
 
 /**

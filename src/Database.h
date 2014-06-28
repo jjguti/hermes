@@ -22,6 +22,7 @@
 
 #include "hermes.h"
 
+#include <stdlib.h>
 #include <iostream>
 #include <string>
 #include <sqlite3.h>

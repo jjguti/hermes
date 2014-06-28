@@ -19,6 +19,7 @@
  */
 #include "Database.h"
 
+#include <unistd.h>
 extern LOGGER_CLASS hermes_log;
 
 void Database::setDatabaseFile(string p_dbfile)
