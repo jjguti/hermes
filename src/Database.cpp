@@ -246,7 +246,7 @@ bool Database::whitelistedIP(string p_ip)
 {
   string sql="";
 
-  sql="SELECT ip FROM whitelisted_ips WHERE ip=SUBSTR(\""+p_ip+"\",0,LENGTH(ip)) LIMIT 1;";
+  sql="SELECT ip FROM whitelisted_ips WHERE ip=\""+p_ip+"\" LIMIT 1;";
 
   if(countRows(sql)>0)
     return true;
@@ -306,7 +306,7 @@ bool Database::blacklistedIP(string p_ip)
 {
   string sql="";
 
-  sql="SELECT ip FROM blacklisted_ips WHERE ip=SUBSTR(\""+p_ip+"\",0,LENGTH(ip)) LIMIT 1;";
+  sql="SELECT ip FROM blacklisted_ips WHERE ip=\""+p_ip+"\" LIMIT 1;";
 
   if(countRows(sql)>0)
     return true;
