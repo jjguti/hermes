@@ -1,6 +1,34 @@
 ChangeLog
 ---------
 
+2014-06-28 18:46 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* add more information to the headers injected by hermes
+* make ip matching for sqlite-black/whitelisted a strict match instead of a
+loose one
+* fix build issues on newer compilers
+
+Older changes which were not previously released:
+
+* number_of_unimplemented_commands_allowed option to limit the number of
+unimplemented commands a server can return.
+* mark ssl IO as such
+* try to detect if ssl will not work before accepting ssl connections
+* change to how we manage SSL initialization. It needs to be done in two steps
+to be able to return the correct smtp code in case of failure
+* ignore SIGPIPE and SIGCHLD. this was causing hermes to randomly finish
+* fix bug when trying to enable ssl and not suceeding. now we handle it
+gracefully instead of failing and randomly crashing
+* add spf-fail to the headers
+* add the add_status_header_if_dns_listed option
+* fix small bug in the percentage estimation optimization
+* add option to control verboseness of log
+* report PID at startup
+* fix stats submission
+* make filelogger log more similar to unixlogger
+* fixes for win32
+* quick get_canonical_filename version for win32
+
 2011-01-08 19:28 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
 
 * fixed NullLogger
