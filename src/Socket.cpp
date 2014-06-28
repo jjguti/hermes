@@ -153,6 +153,15 @@ Socket::~Socket()
 }
 
 #ifdef HAVE_SSL
+
+/**
+ * is ssl enabled on the socket?
+ */
+bool Socket::is_ssl_enabled()
+{
+  return ssl_enabled;
+}
+
 /**
  * prepare ssl on the socket
  *

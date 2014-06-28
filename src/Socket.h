@@ -75,6 +75,7 @@ class Socket
     Socket();
     ~Socket();
     #ifdef HAVE_SSL
+    bool is_ssl_enabled();
     void prepareSSL(bool);
     void startSSL(bool);
     #endif //HAVE_SSL

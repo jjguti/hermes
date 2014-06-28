@@ -622,6 +622,24 @@ string Utils::gethostname()
   return string(buf);
 }
 
+string Utils::gethostname(int s)
+{
+  struct sockaddr_in sa;
+  unsigned int dummy = sizeof sa;
+  struct hostent *hp;
+
+  if (getsockname(s,(struct sockaddr *) &sa,&dummy) == -1)
+    throw Exception("Error getting ip from socket"+Utils::errnotostrerror(errno),__FILE__,__LINE__);
+
+  hp=gethostbyaddr((const void *)&sa.sin_addr,sizeof sa.sin_addr,AF_INET);
+
+  if (hp==NULL)
+    return gethostname();
+
+  return string(hp->h_name);
+}
+
+
 void Utils::write_pid(string file,pid_t pid)
 {
   FILE *f;

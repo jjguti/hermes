@@ -260,10 +260,14 @@ void Proxy::run(string &peer_address)
 
           outside.writeLine(strtemp);
           strtemp="";
+          string ssltls="";
+          if (outside.is_ssl_enabled())
+            ssltls=" (SSL/TLS)";
+
           if(cfg.getAddHeaders())
           {
             inside.writeLine("Received: from "+ehlostr+" ("+peer_address+")");
-            inside.writeLine("  by "+Utils::gethostname()+" with "+(esmtp?"ESTMP":"SMTP")+" via TCP; "+Utils::rfc2821_date());
+            inside.writeLine("  by "+Utils::gethostname(outside.getFD())+" with "+(esmtp?"ESTMP":"SMTP")+ssltls+" via TCP; "+Utils::rfc2821_date());
             inside.writeLine("X-Anti-Spam-Proxy: Proxied by Hermes [www.hermes-project.com]");
             if(cfg.getAddStatusHeader())
               inside.writeLine("X-Hermes-Status: "+hermes_status);
@@ -300,8 +304,8 @@ void Proxy::run(string &peer_address)
         //or to not advertise it as the last capability.
         if("250 pipelining"==Utils::strtolower(strtemp)||"250 chunking"==Utils::strtolower(strtemp))
           strtemp="250 x-noextension";
-	
-	//try to annoy spammers who send us too many senseless commands by delaying their connection a lot
+
+        //try to annoy spammers who send us too many senseless commands by delaying their connection a lot
         if("502"==code) //502 unimplemented -> count them, if bigger than a certain number, terminate connection
         {
           if(cfg.getNumberOfUnimplementedCommandsAllowed()!=-1&&++unimplemented_requests>cfg.getNumberOfUnimplementedCommandsAllowed())

@@ -82,6 +82,7 @@ class Utils
     static string rfc2821_date(time_t *timestamp=NULL);
     static string gethostname();
     static void write_pid(string,pid_t);
+    static string gethostname(int s);
 };
 
 #endif //UTILS_H
