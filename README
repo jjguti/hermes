@@ -17,6 +17,7 @@ It's key features are:
 * Configurable:
   hermes is highly configurable, from greylisting time to logging method and
   everything in between.
+
 * Extension friendly:
   We support most SMTP extensions such as SMTP-AUTH and STARTTLS.
 
