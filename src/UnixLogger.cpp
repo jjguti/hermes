@@ -48,6 +48,6 @@ void UnixLogger::addMessage(string file,int line,int loglevel,string logmessage)
     message=file+":"+Utils::inttostr(line)+" [" + Utils::inttostr(connection_id) + "] " + logmessage;
     if(false==cfg.getBackground())
       cout << message << endl;
-    syslog(sloglevel,message.c_str());
+    syslog(sloglevel, "%s", message.c_str());
   }
 }
