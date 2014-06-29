@@ -160,13 +160,21 @@ main
     {
       //this is needed to get hermes to load the dns resolver BEFORE chrooting
       (void)gethostbyname("hermes-project.com");
-      chdir(cfg.getChroot().c_str());
+      if(-1 == chdir(cfg.getChroot().c_str()))
+      {
+        LERR(_("Couldn't chdir into ") + cfg.getChroot() + " " + Utils::errnotostrerror(errno) );
+        return -1;
+      }
       if(-1==chroot(cfg.getChroot().c_str()))
       {
         LERR(_("Couldn't chroot ") + Utils::errnotostrerror(errno));
         return -1;
       }
-      chdir("/");
+      if(-1 == chdir("/"))
+      {
+        LERR(_("Couldn't chdir into /, this shouldn't happen: " + Utils::errnotostrerror(errno)) );
+        return -1;
+      }
     }
   #endif //WIN32
 
@@ -187,10 +195,26 @@ main
   if(cfg.getDropPrivileges())
   {
     //drop privileges once we have opened the listening port
-    setgroups(0,NULL);
-    setgid(cfg.getGid());
-    setuid(cfg.getUid());
-    setuid(cfg.getUid());
+    if(-1 == setgroups(0,NULL))
+    {
+      LERR(_("Error dropping priviledges " + Utils::errnotostrerror(errno)) );
+      return -1;
+    }
+    if(-1 == setgid(cfg.getGid()))
+    {
+      LERR(_("Error setting gid " + Utils::inttostr(cfg.getGid()) + " " + Utils::errnotostrerror(errno)) );
+      return -1;
+    }
+    if(-1 == setuid(cfg.getUid()))
+    {
+      LERR(_("Error setting uid " + Utils::inttostr(cfg.getUid()) + " " + Utils::errnotostrerror(errno)) );
+      return -1;
+    }
+    if(-1 == setuid(cfg.getUid()))
+    {
+      LERR(_("Error setting uid " + Utils::inttostr(cfg.getUid()) + " " + Utils::errnotostrerror(errno)) );
+      return -1;
+    }
   }
   #endif //WIN32
 
