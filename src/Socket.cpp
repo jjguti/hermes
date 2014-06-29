@@ -228,21 +228,33 @@ ssize_t Socket::readBytes(void *buf,ssize_t lon)
 
     #ifdef HAVE_SSL
     if(ssl_enabled)
+    {
       retval=SSL_read(ssl,buf,lon);
+    }
     else
     #endif //HAVE_SSL
+    {
       retval=recv(fd,(char *)buf,lon,MSG_NOSIGNAL);
+    }
 
     if(!retval)
+    {
       throw NetworkException(_("Peer closed connection"),__FILE__,__LINE__);
+    }
 
     if(retval<0)
+    {
       #ifdef HAVE_SSL
       if(ssl_enabled)
+      {
         throw NetworkException(_("SSL error number: ")+Utils::inttostr(SSL_get_error(ssl,retval)),__FILE__,__LINE__);
+      }
       else
       #endif //HAVE_SSL
+      {
         throw NetworkException(_(Utils::errnotostrerror(errno)),__FILE__,__LINE__);
+      }
+    }
     readed+=lon;
   }
 
@@ -308,12 +320,18 @@ void Socket::writeBytes(void *bytes,ssize_t len)
       throw NetworkException(_("Peer closed connection"),__FILE__,__LINE__);
 
     if(retval<0)
+    {
       #ifdef HAVE_SSL
       if(ssl_enabled)
+      {
         throw NetworkException(_("SSL error number: ")+Utils::inttostr(SSL_get_error(ssl,retval)),__FILE__,__LINE__);
+      }
       else
       #endif //HAVE_SSL
+      {
         throw NetworkException(_(Utils::errnotostrerror(errno)),__FILE__,__LINE__);
+      }
+    }
     written+=len;
   }
 }
@@ -465,9 +483,13 @@ string Socket::resolveInverselyToString(string ip)
   error=getnameinfo(&addr,sizeof(struct sockaddr),hostname,NI_MAXHOST,NULL,0,NI_NAMEREQD);
 
   if(error)
+  {
     if(error==EAI_NONAME)  //if the problem is that we didn't get a hostname, return empty string
+    {
       hostname[0]='\0';
+    }
     else
+    {
       #ifdef HAVE_GAI_STRERROR
         throw Exception(gai_strerror(error)+Utils::inttostr(error),__FILE__,__LINE__);
       #else
@@ -477,6 +499,8 @@ string Socket::resolveInverselyToString(string ip)
           throw Exception("Socket error number "+Utils::inttostr(error),__FILE__,__LINE__);
         #endif //WIN32
       #endif //HAVE_GAI_STRERROR
+    }
+  }
 
   return string(hostname);
 }
