@@ -107,6 +107,8 @@ main
         throw Exception(string(_("Config file "))+argv[1]+_(" doesn't exist or is not readable."),__FILE__,__LINE__);
       cfg.parse(argv[1]);
     }
+    else
+      throw Exception(_("Config file not specified"), __FILE__, __LINE__);
     cfg.validateConfig();
   }
   catch(Exception &e)
