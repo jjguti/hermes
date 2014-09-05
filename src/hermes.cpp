@@ -121,8 +121,10 @@ main
 
   signal(SIGTERM,exit_requested);
   signal(SIGINT,exit_requested);
+  #ifndef WIN32
   signal(SIGCHLD,SIG_IGN);
   signal(SIGPIPE,SIG_IGN);
+  #endif //WIN32
 
   //we have to create the server socket BEFORE chrooting, because if we don't,
   //SSL cannot initialize because it's missing libz
