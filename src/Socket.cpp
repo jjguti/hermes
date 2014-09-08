@@ -59,7 +59,7 @@ Socket::Socket():fd(-1)
       if(!ssl_ctx_server)
         throw Exception(_("Error creating SSL context"),__FILE__,__LINE__);
       /* load certificate */
-      if(SSL_CTX_use_certificate_file(ssl_ctx_server,cfg.getCertificateFile().c_str(),SSL_FILETYPE_PEM)==-1)
+      if(SSL_CTX_use_certificate_chain_file(ssl_ctx_server,cfg.getCertificateFile().c_str())==-1)
         throw Exception(_("Error loading certificate"),__FILE__,__LINE__);
       /* load private key */
       if(SSL_CTX_use_PrivateKey_file(ssl_ctx_server,cfg.getPrivateKeyFile().c_str(),SSL_FILETYPE_PEM)==-1)
