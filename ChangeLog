@@ -1,6 +1,12 @@
 ChangeLog
 ---------
 
+2014-10-09 06:54 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
+
+* fix a bug with certificate handling, load a full chain from a file if a
+availabe
+* fix building on win32
+
 2014-06-28 18:46 Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
 
 * add more information to the headers injected by hermes
