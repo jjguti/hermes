@@ -294,7 +294,11 @@ string Socket::readLine()
   }
   while(c!=10&&!isClosed());
 
-  LDEB("r" + string(ssl_enabled?"s":"") + ">" + s.str());
+  LDEB(string("r") +
+  #ifdef HAVE_SSL
+    string(ssl_enabled?"s":"") +
+  #endif //HAVE_SSL
+  ">" + s.str());
 
   return s.str();
 }
@@ -344,7 +348,11 @@ void Socket::writeByte(char c)
 void Socket::writeLine(string s)
 {
 
-  LDEB("w" + string(ssl_enabled?"s":"") + ">" + s);
+  LDEB(string("w") +
+  #ifdef HAVE_SSL
+  string(ssl_enabled?"s":"") +
+  #endif //HAVE_SSL
+  ">" + s);
   s+="\r\n";
 
   writeBytes((void *)s.c_str(),s.length());

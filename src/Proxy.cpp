@@ -261,8 +261,10 @@ void Proxy::run(string &peer_address)
           outside.writeLine(strtemp);
           strtemp="";
           string ssltls="";
+          #ifdef HAVE_SSL
           if (outside.is_ssl_enabled())
             ssltls=" (SSL/TLS)";
+          #endif //HAVE_SSL
 
           if(cfg.getAddHeaders())
           {
