@@ -61,6 +61,31 @@ Socket::Socket():fd(-1)
       /* load certificate */
       if(SSL_CTX_use_certificate_chain_file(ssl_ctx_server,cfg.getCertificateFile().c_str())==-1)
         throw Exception(_("Error loading certificate"),__FILE__,__LINE__);
+
+      /* load DH params */
+      BIO     *bio;
+      DH      *dh;
+      if (cfg.getDhparamsFile().size())
+      {
+        if ((bio=BIO_new_file(cfg.getDhparamsFile().c_str(), "r")) != 0)
+        {
+          if ((dh=PEM_read_bio_DHparams(bio, NULL, NULL, NULL)) != 0)
+          {
+            SSL_CTX_set_tmp_dh(ssl_ctx_server, dh);
+            DH_free(dh);
+          }
+          else
+          {
+            throw Exception(_("Error loading DH params"),__FILE__,__LINE__);
+          }
+          BIO_free(bio);
+        }
+        else
+        {
+          throw Exception(_("Error opening DH params file"),__FILE__,__LINE__);
+        }
+      }
+
       /* load private key */
       if(SSL_CTX_use_PrivateKey_file(ssl_ctx_server,cfg.getPrivateKeyFile().c_str(),SSL_FILETYPE_PEM)==-1)
         throw Exception(_("Error loading private key"),__FILE__,__LINE__);

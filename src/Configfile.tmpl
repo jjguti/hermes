@@ -230,6 +230,12 @@ string,private_key_file,"/etc/hermes/hermes.key"
 *   # openssl req -new -x509 -nodes -sha1 -days 365 -key private.key > certificate.crt
 * and answer the questions
 string,certificate_file,"/etc/hermes/hermes.cert"
+
+* optional file with Diffie-Hellman parameters for Perfect Forward Secrecy.
+* to generate, execute:
+*   # openssl dhparam -out dhparam.pem <numbits>
+* (replace <numbits> with the number of bits suitable for you, e.G. 1024)
+string,dhparams_file,""
 #endif //HAVE_SSL
 
 * whether to add headers to the email sent or no.
