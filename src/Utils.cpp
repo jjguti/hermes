@@ -418,9 +418,15 @@ string Utils::errnotostrerror(int errnum)
 {
   char buf[2048]="";
   char *strerr;
-//  if(strerror_r(errnum,strerr,1024)!=-1)
   #ifndef WIN32
+  #ifdef __GLIBC__
   strerr=strerror_r(errnum,buf,2048);
+  #else
+  int retval = strerror_r(errnum, buf, sizeof buf);
+  strerr = buf;
+  if(retval != 0)
+    strcpy(buf, "error fetching error description");
+  #endif
   #else
   strerr="Error ";
   #endif //WIN32
