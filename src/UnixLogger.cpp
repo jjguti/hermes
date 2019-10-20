@@ -39,6 +39,7 @@ void UnixLogger::addMessage(string file,int line,int loglevel,string logmessage)
 
   if(loglevel<=cfg.getLogLevel())
   {
+    sloglevel = LOG_INFO;
     switch(loglevel)
     {
       case HERMES_LOG_INFO: sloglevel=LOG_INFO;break;

@@ -392,7 +392,7 @@ unsigned long Database::getIntValue(string& p_sql)
 
   if(NULL==result)
     throw SQLException("SQL: "+p_sql+" didn't return any data, SQL query may be wrong",__FILE__,__LINE__);
-  if('\0'==result[ncolumn])
+  if('\0'==result[ncolumn][0])
     value=0; //why sqlite doesn't return 0 when there are no rows?
   else
     value=strtoul(result[ncolumn],NULL,10);

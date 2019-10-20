@@ -17,6 +17,8 @@
  *
  * @author Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
  */
+#include "config.h"
+
 #include <iostream>
 #include <list>
 #include <stack>
@@ -63,12 +65,12 @@ __thread unsigned long connection_id;
 list<unsigned long> children;
 
 #ifdef HAVE_SSL
-pthread_mutex_t ssl_locks[CRYPTO_NUM_LOCKS]={PTHREAD_MUTEX_INITIALIZER};
+pthread_mutex_t ssl_locks[CRYPTO_num_locks()]={PTHREAD_MUTEX_INITIALIZER};
 
 void ssl_locking_function(int mode,int n,const char *file,int line)
 {
-  if(n>CRYPTO_NUM_LOCKS)
-    throw Exception(_("Error, "+Utils::inttostr(n)+" is bigger than CRYPTO_NUM_LOCKS("+Utils::inttostr(CRYPTO_NUM_LOCKS)+")"),__FILE__,__LINE__);
+  if(n>CRYPTO_num_locks())
+    throw Exception(_("Error, "+Utils::inttostr(n)+" is bigger than CRYPTO_num_locks()("+Utils::inttostr(CRYPTO_num_locks())+")"),__FILE__,__LINE__);
   if(mode&CRYPTO_LOCK)
     pthread_mutex_lock(&ssl_locks[n]);
   else

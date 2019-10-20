@@ -20,6 +20,7 @@
 #include "Utils.h"
 
 #include <unistd.h>
+#include <cstring>
 
 extern Configfile cfg;
 extern LOGGER_CLASS hermes_log;
@@ -617,7 +618,7 @@ string Utils::gethostname()
   if('\0'==buf[0])
   {
     if(cfg.getHostname()!="")
-      strncpy(buf,cfg.getHostname().c_str(),HOST_NAME_MAX);
+      strncpy(buf,cfg.getHostname().c_str(),HOST_NAME_MAX - 1);
     else
     {
       if(-1==::gethostname(buf,HOST_NAME_MAX))

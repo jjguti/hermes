@@ -19,6 +19,7 @@
  */
 #include "Socket.h"
 #include <unistd.h>
+#include <cstring>
 
 int Socket::created_sockets=0;
 
@@ -309,6 +310,10 @@ string Socket::readLine()
 {
   char c=0;
   stringstream s;
+  string ssl_debug_string="";
+  #ifdef HAVE_SSL
+  if (ssl_enabled) ssl_debug_string = "s";
+  #endif //HAVE_SSL
 
   do
   {
@@ -319,11 +324,7 @@ string Socket::readLine()
   }
   while(c!=10&&!isClosed());
 
-  LDEB(string("r") +
-  #ifdef HAVE_SSL
-    string(ssl_enabled?"s":"") +
-  #endif //HAVE_SSL
-  ">" + s.str());
+  LDEB(string("r") + ssl_debug_string + ">" + s.str());
 
   return s.str();
 }
@@ -372,12 +373,12 @@ void Socket::writeByte(char c)
 
 void Socket::writeLine(string s)
 {
-
-  LDEB(string("w") +
+  string ssl_debug_string="";
   #ifdef HAVE_SSL
-  string(ssl_enabled?"s":"") +
+  if (ssl_enabled) ssl_debug_string = "s";
   #endif //HAVE_SSL
-  ">" + s);
+
+  LDEB(string("w") + ssl_debug_string + ">" + s);
   s+="\r\n";
 
   writeBytes((void *)s.c_str(),s.length());
