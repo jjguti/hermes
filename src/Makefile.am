@@ -1,6 +1,6 @@
 INCLUDES = $(OpenSSL_CFLAGS) $(SQLite3_CFLAGS)
 LIBS = $(OpenSSL_LIBS) $(SQLite3_LIBS)
-CXXFLAGS += -Wall -ansi -pedantic -Wshadow -pthread -Werror --std=c++11
+CXXFLAGS += -Wall -pedantic -Wshadow -pthread -Werror --std=c++11
 
 bin_PROGRAMS = hermes
 nodist_hermes_SOURCES = Configfile.cpp

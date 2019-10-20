@@ -1,0 +1,30 @@
+language: c++
+jobs:
+  include:
+    - compiler: gcc
+      os: linux
+      dist: bionic
+    - compiler: clang
+      os: linux
+      dist: bionic
+    - compiler: gcc
+      os: linux
+      dist: xenial
+    - compiler: clang
+      os: linux
+      dist: xenial
+
+addons:
+  apt:
+    packages:
+      - libspf2-dev
+  homebrew:
+    packages:
+      - gettext
+      - openssl
+
+script:
+  - ./bootstrap
+  - ./configure
+  - make install prefix=$PWD/install-dir
+  - find $PWD/install-dir

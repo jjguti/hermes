@@ -64,13 +64,13 @@ __thread unsigned long connection_id;
 
 list<unsigned long> children;
 
-#ifdef HAVE_SSL
-pthread_mutex_t ssl_locks[CRYPTO_num_locks()]={PTHREAD_MUTEX_INITIALIZER};
+#if defined(HAVE_SSL) && OPENSSL_VERSION_NUMBER < 0x10100000L
+pthread_mutex_t ssl_locks[CRYPTO_NUM_LOCKS]={PTHREAD_MUTEX_INITIALIZER};
 
 void ssl_locking_function(int mode,int n,const char *file,int line)
 {
-  if(n>CRYPTO_num_locks())
-    throw Exception(_("Error, "+Utils::inttostr(n)+" is bigger than CRYPTO_num_locks()("+Utils::inttostr(CRYPTO_num_locks())+")"),__FILE__,__LINE__);
+  if(n>CRYPTO_NUM_LOCKS)
+    throw Exception(_("Error, "+Utils::inttostr(n)+" is bigger than CRYPTO_NUM_LOCKS()("+Utils::inttostr(CRYPTO_NUM_LOCKS)+")"),__FILE__,__LINE__);
   if(mode&CRYPTO_LOCK)
     pthread_mutex_lock(&ssl_locks[n]);
   else
@@ -95,7 +95,7 @@ main
   }
   */
 
-  #ifdef HAVE_SSL
+  #if defined(HAVE_SSL) && OPENSSL_VERSION_NUMBER < 0x10100000L
     CRYPTO_set_locking_callback(ssl_locking_function);
     #ifndef WIN32 //getpid() returns different values for threads on windows, therefor this is not needed
     CRYPTO_set_id_callback(pthread_self);
