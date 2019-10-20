@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/jjguti/hermes.svg?branch=master)](https://travis-ci.org/jjguti/hermes)
+
 hermes is a GPL anti-spam solution that will help you get rid of (most) UCE.
 
 It's key features are:
