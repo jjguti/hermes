@@ -20,11 +20,14 @@ addons:
       - libspf2-dev
   homebrew:
     packages:
+      - libintl
       - gettext
       - openssl
 
 script:
-  - ./bootstrap
-  - ./configure
+  - mkdir build
+  - pushd build
+  - cmake ..
   - make install prefix=$PWD/install-dir
   - find $PWD/install-dir
+  - popd
