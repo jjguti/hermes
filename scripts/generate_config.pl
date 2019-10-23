@@ -74,7 +74,7 @@ chomp $hvar1;
 chomp $hvar2;
 chomp $conf_example;
 
-open CPPIN, "<Configfile.cpp.in";
+open CPPIN, "<../src/Configfile.cpp.in";
 $cppstr=join("",<CPPIN>);
 close CPPIN;
 open CPPOUT, ">Configfile.cpp";
@@ -84,7 +84,7 @@ $cppstr =~ s/%templ_getmethods%/$cppvar3/;
 print CPPOUT $cppstr;
 close CPPOUT;
 
-open HIN, "<Configfile.h.in";
+open HIN, "<../src/Configfile.h.in";
 $hstr=join("",<HIN>);
 close HIN;
 open HOUT, ">Configfile.h";
