@@ -32,4 +32,5 @@ target_link_libraries(hermes -lpthread -lsqlite3 -lcrypto -lssl -lspf2)
 install(TARGETS hermes
   RUNTIME DESTINATION bin)
 install(FILES dists/hermesrc.example
-  TYPE SYSCONF)
+  TYPE SYSCONF
+  DESTINATION etc)
