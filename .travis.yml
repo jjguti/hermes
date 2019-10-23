@@ -27,7 +27,7 @@ addons:
 script:
   - mkdir build
   - pushd build
-  - cmake .. -DCMAKE_INSTALLATION_PREFIX=$PWD/install-dir
+  - cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/install-dir
   - make install
   - find $PWD/install-dir
   - popd
