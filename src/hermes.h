@@ -20,7 +20,6 @@
 #ifndef SMTPPROXY_H
 #define SMTPPROXY_H
 
-#include "config.h"
 #include "Exception.h"
 #include <assert.h>
 #include <string>

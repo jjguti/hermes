@@ -19,6 +19,8 @@
  */
 #include "FileLogger.h"
 
+#include <cstring>
+
 extern Configfile cfg;
 extern __thread unsigned long connection_id;
 

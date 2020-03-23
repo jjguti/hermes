@@ -17,7 +17,6 @@
  *
  * @author Juan José Gutiérrez de Quevedo <juanjo@gutierrezdequevedo.com>
  */
-#include "config.h"
 
 #include <iostream>
 #include <list>
