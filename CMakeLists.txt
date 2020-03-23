@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.12)
 
 project (hermes)
 set(LOGGER_CLASS UnixLogger CACHE STRING "One of UnixLogger, FileLogger or NullLogger")
