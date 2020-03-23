@@ -25,12 +25,11 @@ target_compile_definitions(hermes PRIVATE LOGGER_CLASS=${LOGGER_CLASS})
 target_sources(hermes PRIVATE src/${LOGGER_CLASS}.cpp)
 
 # required dependency sqlite3
-find_package (SQLite3)
+find_library (SQLITE3_LIBRARY NAMES libsqlite3 sqlite3)
 
 # optional dependency libspf2
-find_library (spf2 NAMES spf2 libspf2)
-if(spf2)
-  set(SPF2_LIB -lspf2)
+find_library (SPF2_LIBRARY NAMES spf2 libspf2)
+if(SPF2_LIB)
   target_compile_definitions(hermes PRIVATE HAVE_SPF2)
   target_sources(hermes PRIVATE src/Spf.cpp)
   set(OPT_DEFS ${OPT_DEFS} -DHAVE_SPF2)
@@ -57,9 +56,9 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Configfile.cpp
 
 
 target_link_libraries(hermes
-  ${SQLite3_LIBRARIES}
+  ${SQLITE3_LIBRARY}
   ${OPENSSL_LIBRARIES}
-  ${SPF2_LIB}
+  ${SPF2_LIBRARY}
   pthread)
 
 install(TARGETS hermes
