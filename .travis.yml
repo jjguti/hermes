@@ -18,11 +18,15 @@ addons:
   apt:
     packages:
       - libspf2-dev
+      - doxygen
+      - graphviz
   homebrew:
     packages:
       - libintl
       - gettext
       - openssl
+      - doxygen
+      - graphviz
 
 script:
   - mkdir build
