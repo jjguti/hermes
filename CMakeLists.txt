@@ -55,6 +55,17 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Configfile.cpp
   docs/hermes-options.html.in scripts/generate_config.pl)
 
 
+# doxygen
+find_package (Doxygen REQUIRED dot)
+if(DOXYGEN_FOUND)
+  add_custom_target(doc ALL
+    doxygen
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs)
+  install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs/html
+    DESTINATION usr/share/doc/hermes/html)
+endif()
+
 target_link_libraries(hermes
   ${SQLITE3_LIBRARY}
   ${OPENSSL_LIBRARIES}
@@ -66,3 +77,10 @@ install(TARGETS hermes
 
 install(FILES dists/hermesrc.example
   DESTINATION etc)
+
+install(FILES
+  dists/hermesrc.example
+  docs/gpl.txt
+  docs/installing-hermes.txt
+  docs/hermes-options.html
+  DESTINATION usr/share/doc/hermes)
