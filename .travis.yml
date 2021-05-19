@@ -18,13 +18,20 @@ addons:
   apt:
     packages:
       - libspf2-dev
+      - doxygen
+      - graphviz
   homebrew:
     packages:
+      - libintl
       - gettext
       - openssl
+      - doxygen
+      - graphviz
 
 script:
-  - ./bootstrap
-  - ./configure
-  - make install prefix=$PWD/install-dir
+  - mkdir build
+  - pushd build
+  - cmake .. -DCMAKE_INSTALL_PREFIX=$PWD/install-dir
+  - make install
   - find $PWD/install-dir
+  - popd

@@ -20,7 +20,6 @@
 #ifndef SERVERSOCKET_H
 #define SERVERSOCKET_H
 
-#include "config.h"
 
 #include <sys/types.h>
 #ifdef WIN32

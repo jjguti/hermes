@@ -20,7 +20,6 @@
 #ifndef FILELOGGER_H
 #define FILELOGGER_H
 
-#include "config.h"
 #include <stdio.h>
 #include <pthread.h>
 #include <string>
