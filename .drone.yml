@@ -1,0 +1,14 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+- name: build
+  image: alpine
+  commands:
+  - rm -fr build
+  - mkdir build
+  - cd build
+  - apk add -t hermes-build-deps --no-cache perl graphviz doxygen gcc make openssl-dev libspf2-dev cmake g++ sqlite-dev gettext-dev
+  - cmake ..
+  - make -j4
