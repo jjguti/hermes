@@ -63,7 +63,7 @@ if(DOXYGEN_FOUND)
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs)
   install(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs/html
-    DESTINATION usr/share/doc/hermes/html)
+    TYPE DOC)
 endif()
 
 target_link_libraries(hermes
@@ -76,11 +76,11 @@ install(TARGETS hermes
   RUNTIME DESTINATION bin)
 
 install(FILES dists/hermesrc.example
-  DESTINATION etc)
+    TYPE SYSCONF)
 
 install(FILES
   dists/hermesrc.example
   docs/gpl.txt
   docs/installing-hermes.txt
   docs/hermes-options.html
-  DESTINATION usr/share/doc/hermes)
+  TYPE DOC)

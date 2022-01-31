@@ -1,15 +1,76 @@
 ---
 kind: pipeline
 type: docker
-name: default
+name: amd64
+
+platform:
+  os: linux
+  arch: amd64
 
 steps:
-- name: build
+- name: prepare workspace
   image: alpine
   commands:
-  - rm -fr build
-  - mkdir build
-  - cd build
+  - rm -fr build_dir
+- name: build hermes
+  image: alpine
+  commands:
   - apk add -t hermes-build-deps --no-cache perl graphviz doxygen gcc make openssl-dev libspf2-dev cmake g++ sqlite-dev gettext-dev
-  - cmake ..
-  - make -j4
+  - cmake -B build_dir
+  - cmake --build build_dir
+- name: docker image build
+  image: plugins/docker
+  settings:
+    tags:
+      - latest
+    repo: docker.gutierrezdequevedo.com/ps/hermes
+---
+kind: pipeline
+type: docker
+name: arm64
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+- name: prepare workspace
+  image: alpine
+  commands:
+  - rm -fr build_dir
+- name: build hermes
+  image: alpine
+  commands:
+  - apk add -t hermes-build-deps --no-cache perl graphviz doxygen gcc make openssl-dev libspf2-dev cmake g++ sqlite-dev gettext-dev
+  - cmake -B build_dir
+  - cmake --build build_dir
+- name: docker image build
+  image: plugins/docker
+  settings:
+    tags:
+      - latest-arm64
+    repo: docker.gutierrezdequevedo.com/ps/hermes
+
+---
+kind: pipeline
+type: docker
+name: notification
+
+depends_on:
+- amd64
+- arm64
+steps:
+- name: notify matrix
+  image: spotlightkid/drone-matrixchat-notify
+  settings:
+    homeserver: 'https://grava.work'
+    roomid: '!wMVeFx6jwwF0TWA18h:grava.work'
+    userid: '@juanjo:grava.work'
+    deviceid: 'drone CI'
+    accesstoken: G66FRa3fG7qNfM4KKoW5wx6TWophvvtF
+    markdown: 'yes'
+    template: |
+      `${DRONE_REPO}` build #${DRONE_BUILD_NUMBER} status: **${DRONE_BUILD_STATUS}**
+
+      [${DRONE_BUILD_LINK}]
+
