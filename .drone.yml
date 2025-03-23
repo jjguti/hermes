@@ -16,7 +16,7 @@ steps:
   image: alpine
   commands:
   - apk add -t hermes-build-deps --no-cache perl graphviz doxygen gcc make openssl-dev libspf2-dev cmake g++ sqlite-dev gettext-dev
-  - cmake -B build_dir
+  - cmake -B build_dir -D BUILD_DOCS=ON
   - cmake --build build_dir
 - name: docker image build
   image: plugins/docker

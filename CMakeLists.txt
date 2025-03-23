@@ -14,6 +14,8 @@ add_executable (hermes
   src/Proxy.cpp
   src/Socket.cpp)
 
+option(BUILD_DOC "Build documentation")
+
 if(WIN32)
   set(SOURCES ${SOURCES}
     src/FileLogger.cpp
@@ -56,14 +58,16 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Configfile.cpp
 
 
 # doxygen
-find_package (Doxygen REQUIRED dot)
-if(DOXYGEN_FOUND)
-  add_custom_target(doc ALL
-    doxygen
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs)
-  install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs/html
-    TYPE DOC)
+if (BUILD_DOCS)
+  find_package (Doxygen)
+  if(DOXYGEN_FOUND)
+    add_custom_target(doc ALL
+      doxygen
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs)
+    install(
+      DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/docs/html
+      TYPE DOC)
+  endif()
 endif()
 
 target_link_libraries(hermes
