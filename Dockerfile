@@ -1,7 +1,7 @@
 FROM alpine:3.18
 ADD . /hermes
 WORKDIR /hermes
-RUN apk add --no-cache perl graphviz doxygen gcc make openssl-dev libspf2-dev cmake g++ sqlite-dev gettext-dev
+RUN apk add --no-cache graphviz doxygen gcc make openssl-dev libspf2-dev cmake g++ sqlite-dev gettext-dev python3
 RUN cmake -B build
 RUN cmake --build build
 RUN mkdir /hermes-installation

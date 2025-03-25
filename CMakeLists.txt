@@ -52,9 +52,9 @@ include_directories(
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Configfile.cpp
   COMMAND cpp ${OPT_DEFS} ${CMAKE_CURRENT_SOURCE_DIR}/src/Configfile.tmpl -I
   ${CMAKE_CURRENT_BINARY_DIR} |
-  ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_config.pl
+  python ${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_config.py
   DEPENDS src/Configfile.cpp.in src/Configfile.h.in src/Configfile.tmpl
-  docs/hermes-options.html.in scripts/generate_config.pl)
+  docs/hermes-options.html.in scripts/generate_config.py)
 
 
 # doxygen
