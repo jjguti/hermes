@@ -332,38 +332,6 @@ void *cleaner_thread_run(void *)
         {
           LERR("Error cleaning the database: " + string(e));
         }
-        if(spamcount>0&&cfg.getSubmitStats())
-        {
-          try
-          {
-            Socket s;
-            string server_response;
-
-            s.init();
-            s.connect("stats.hermes-project.com",11125);
-            #ifdef HAVE_SSL
-            if(cfg.getSubmitStatsSsl())
-            {
-              s.writeLine("ssl");
-              s.prepareSSL(false);
-              s.startSSL(false);
-            }
-            else
-            #endif //HAVE_SSL
-              s.writeLine("non-ssl");
-            s.writeLine(cfg.getSubmitStatsUsername());
-            s.writeLine(cfg.getSubmitStatsPassword());
-            s.writeLine(Utils::inttostr(spamcount));
-            server_response=s.readLine();
-            s.close();
-            if("OK"!=server_response)
-              throw Exception(server_response,__FILE__,__LINE__);
-          }
-          catch(Exception &e)
-          {
-            LDEB("Exception sending stats: "+string(e));
-          }
-        }
       }
       #ifndef WIN32
       if(false==cfg.getBackground())
