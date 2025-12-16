@@ -34,7 +34,7 @@ void Proxy::setOutside(Socket& p_outside)
  * TODO: fill diagram and point to website with graphical version
  *
  */
-void Proxy::run(string &peer_address)
+void Proxy::run(const string &real_peer_address)
 {
   #ifdef HAVE_SPF
   Spf spf_checker;
@@ -44,6 +44,32 @@ void Proxy::run(string &peer_address)
   string to="";
   string ehlostr="";
   string resolvedname="";
+  string peer_address = "";
+  if (cfg.getProxyProtocol())
+  {
+    struct {
+        uint8_t sig[12];  /* hex 0D 0A 0D 0A 00 0D 0A 51 55 49 54 0A */
+        uint8_t ver_cmd;  /* protocol version and command */
+        uint8_t fam;      /* protocol family and address */
+        uint16_t len;     /* number of following bytes part of the header */
+    } hdr_v2;
+
+    struct {        /* for TCP/UDP over IPv4, len = 12 */
+        uint32_t src_addr;
+        uint32_t dst_addr;
+        uint16_t src_port;
+        uint16_t dst_port;
+    } ipv4_addr;
+
+    outside.readBytes(&hdr_v2, sizeof(hdr_v2));
+    outside.readBytes(&ipv4_addr, sizeof(ipv4_addr));
+    peer_address = Socket::intToIpv4Address(ipv4_addr.src_addr);
+    std::cout << "received proxied connection from " << peer_address << std::endl;
+  }
+  else
+  {
+    peer_address = real_peer_address;
+  }
   unsigned char last_state=SMTP_STATE_WAIT_FOR_HELO;
   long unimplemented_requests=0;
 

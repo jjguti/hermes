@@ -85,11 +85,14 @@ string Utils::strtolower(string s)
  */
 string Utils::trim(string s)
 {
-  while(isspace(s[0]))
-    s.erase(0,1);
+  if(s.length())
+  {
+    while(isspace(s[0]))
+      s.erase(0,1);
 
-  while(isspace(s[s.length()-1]))
-    s.erase(s.length()-1,1);
+    while(isspace(s[s.length()-1]))
+      s.erase(s.length()-1,1);
+  }
 
   return s;
 }

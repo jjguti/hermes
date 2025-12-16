@@ -221,14 +221,14 @@ bool,incoming_ssl,false
 
 * file with our private key (PEM format).
 * to generate, execute:
-*   # openssl genrsa 1024 > private.key
+*   # openssl genrsa 2048 > hermes.key
 string,private_key_file,"/etc/hermes/hermes.key"
 
 * file with our server certificate (PEM format).
 * to generate, execute:
-*   # openssl req -new -x509 -nodes -sha1 -days 365 -key private.key > certificate.crt
+*   # openssl req -new -x509 -nodes -sha1 -days 365 -key hermes.key > certificate.crt
 * and answer the questions
-string,certificate_file,"/etc/hermes/hermes.cert"
+string,certificate_file,"/etc/hermes/certificate.crt"
 
 * optional file with Diffie-Hellman parameters for Perfect Forward Secrecy.
 * to generate, execute:
@@ -273,3 +273,9 @@ bool,query_spf,false
 * You should enable this while debugging your hermes installation,
 * as configuration errors won't be fatal.
 bool,return_temp_error_on_reject,false
+
+* whether to accept connections using the proxy protocol or not
+* see https://www.haproxy.org/download/2.0/doc/proxy-protocol.txt
+* only version 2.0 is supported at the moment
+* only IPv4 is supported
+bool,proxy_protocol,false

@@ -84,6 +84,7 @@ class Socket
     bool connect(string,unsigned int);
     int getFD();
     static struct sockaddr resolve(string);
+    static string intToIpv4Address(uint32_t);
     static string resolveToString(string);
     static string resolveInverselyToString(string);
 

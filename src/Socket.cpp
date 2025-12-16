@@ -21,6 +21,8 @@
 #include <unistd.h>
 #include <cstring>
 
+#include <openssl/err.h>
+
 int Socket::created_sockets=0;
 
 #ifdef HAVE_SSL
@@ -60,8 +62,12 @@ Socket::Socket():fd(-1)
       if(!ssl_ctx_server)
         throw Exception(_("Error creating SSL context"),__FILE__,__LINE__);
       /* load certificate */
-      if(SSL_CTX_use_certificate_chain_file(ssl_ctx_server,cfg.getCertificateFile().c_str())==-1)
+      ERR_clear_error();
+      if(SSL_CTX_use_certificate_chain_file(ssl_ctx_server,cfg.getCertificateFile().c_str())!=1)
+      {
+        ERR_print_errors_fp(stderr);
         throw Exception(_("Error loading certificate"),__FILE__,__LINE__);
+      }
 
       /* load DH params */
       BIO     *bio;
@@ -87,12 +93,21 @@ Socket::Socket():fd(-1)
         }
       }
 
+      ERR_clear_error();
       /* load private key */
-      if(SSL_CTX_use_PrivateKey_file(ssl_ctx_server,cfg.getPrivateKeyFile().c_str(),SSL_FILETYPE_PEM)==-1)
+      int retval = SSL_CTX_use_PrivateKey_file(ssl_ctx_server,cfg.getPrivateKeyFile().c_str(),SSL_FILETYPE_PEM);
+      if(retval != 1)
+      {
+        ERR_print_errors_fp(stderr);
         throw Exception(_("Error loading private key"),__FILE__,__LINE__);
+      }
       /* check that private key and cert match */
-      if(!SSL_CTX_check_private_key(ssl_ctx_server))
+      retval = SSL_CTX_check_private_key(ssl_ctx_server);
+      if(retval != 1)
+      {
+        ERR_print_errors_fp(stderr);
         throw Exception(_("Private key doesn't match certificate file"),__FILE__,__LINE__);
+      }
 
       //client
       ssl_ctx_client=NULL;
@@ -589,6 +604,13 @@ string Socket::resolveInverselyToString(string ip)
   return string(hostinfo->h_name);
 }
 #endif //HAVE_GETADDRINFO
+
+string Socket::intToIpv4Address(uint32_t ip)
+{
+  struct in_addr ip_addr;
+  ip_addr.s_addr = ip;
+  return inet_ntoa(ip_addr);
+}
 
 int Socket::getFD()
 {

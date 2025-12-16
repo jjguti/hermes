@@ -55,7 +55,7 @@ class Proxy
   public:
     //Proxy():outside(NULL),inside(NULL){};
     void setOutside(Socket&);
-    void run(string&);
+    void run(const string&);
 };
 
 #endif //PROXY_H

@@ -147,7 +147,10 @@ list<string> Configfile::parseAsList(string str)
   string::size_type startpos=0,endpos=0,len;
   string tmpstr;
 
-  str=Configfile::parseAsString(str); //remove quotes around string
+  if (str.length())
+  {
+    str=Configfile::parseAsString(str); //remove quotes around string
+  }
 
   len=str.length();
   while(startpos<len&&string::npos!=endpos)
